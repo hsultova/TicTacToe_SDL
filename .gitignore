@@ -13,6 +13,8 @@
 *.o
 *.obj
 
+.vs/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -86,3 +88,5 @@ ipch/
 *.out
 *.app
 *.sln
+*.vcxproj
+*.filters
