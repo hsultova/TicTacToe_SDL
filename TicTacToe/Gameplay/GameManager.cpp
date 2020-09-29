@@ -8,7 +8,6 @@ GameManager* GameManager::s_instance = nullptr;
 
 GameManager* GameManager::Get()
 {
-
 	return s_instance;
 }
 
@@ -26,10 +25,14 @@ void GameManager::UnregisterInstance(GameManager* _instance)
 
 GameManager::GameManager()
 {
+	m_oTexture = new Texture();
+	m_xTexture = new Texture();
 }
 
 GameManager::~GameManager()
 {
+	delete m_oTexture;
+	delete m_xTexture;
 }
 
 SDL_Window* GameManager::GetWindow() const
@@ -97,23 +100,28 @@ void GameManager::Destroy()
 	SDL_Quit();
 }
 
-void GameManager::DrawGrid()
+const int GameManager::GetScreenWidth() const
 {
-	SDL_SetRenderDrawColor(m_renderer, 0, 0, 139, 255);
-	int offset = 100;
-	int width = screenWidth - 2 * offset;
-	int height = 5;
+	return screenWidth;
+}
 
-	//Draw grid using rectangles. We make the line bolder this way.
-	SDL_Rect firstHorizontalLine = { offset, screenHeight / 4, width, height };
-	SDL_RenderFillRect(m_renderer, &firstHorizontalLine);
+const int GameManager::GetScreenHeight() const
+{
+	return screenHeight;
+}
 
-	SDL_Rect secondHorizontalLine = { offset, screenHeight / 3 + offset, width, height };
-	SDL_RenderFillRect(m_renderer, &secondHorizontalLine);
+Texture* GameManager::GetXTexture() const
+{
+	return m_xTexture;
+}
 
-	SDL_Rect firstVerticallLine = { static_cast<int>(2.5 * offset), screenHeight / offset, height, width - static_cast<int>(1.5 * offset) };
-	SDL_RenderFillRect(m_renderer, &firstVerticallLine);
+Texture* GameManager::GetOTexture() const
+{
+	return m_oTexture;
+}
 
-	SDL_Rect secondVerticalLine = { static_cast<int>(4.5 * offset), screenHeight / offset, height , width - static_cast<int>(1.5 * offset) };
-	SDL_RenderFillRect(m_renderer, &secondVerticalLine);
+void GameManager::LoadTextures()
+{
+	m_xTexture->LoadFromFile("Textures/x.JPG");
+	m_oTexture->LoadFromFile("Textures/o.JPG");
 }

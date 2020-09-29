@@ -2,7 +2,7 @@
 
 #include <SDL_image.h>
 
-#include "GameManager.h"
+#include "Gameplay\GameManager.h"
 
 Texture::Texture()
 {

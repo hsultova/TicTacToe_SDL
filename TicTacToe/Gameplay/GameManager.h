@@ -1,6 +1,9 @@
 #pragma once
 
 #include <SDL.h>
+
+#include "Core/Texture.h"
+
 class GameManager
 {
 public:
@@ -17,7 +20,14 @@ public:
 
 	bool Initialize();
 	void Destroy();
-	void DrawGrid();
+
+	const int GetScreenWidth() const;
+	const int GetScreenHeight() const;
+
+	Texture* GetXTexture() const;
+	Texture* GetOTexture() const;
+
+	void LoadTextures();
 
 private:
 	static GameManager* s_instance;
@@ -27,5 +37,8 @@ private:
 
 	SDL_Window* m_window = nullptr;
 	SDL_Renderer* m_renderer = nullptr;
+
+	Texture* m_xTexture;
+	Texture* m_oTexture;
 };
 
