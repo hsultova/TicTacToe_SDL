@@ -3,7 +3,6 @@
 #include <SDL_image.h>
 #include <stdio.h>
 #include <assert.h> 
-#include <algorithm>
 
 GameManager* GameManager::s_instance = nullptr;
 

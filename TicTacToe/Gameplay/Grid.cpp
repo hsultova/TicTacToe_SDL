@@ -7,6 +7,7 @@
 
 Grid::Grid()
 {
+	//Initialize the grid with empty cells by default
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -37,24 +38,22 @@ void Grid::Render()
 
 void Grid::OnMouseClick(int _x, int _y)
 {
-	//get current player symbol
-
-
+	//Convert global position (mouse coordinates) to local position (grid ids)
+	//TODO Extract to method
 	int x = _x / (2 * m_cellSize);
 	int y = (_y + m_cellSize) / (2 * m_cellSize);
 
 	if (x < 0 || x >= 3 || y < 0 || y >= 3)
 	{
 		//Out of array bounds
+		//TODO log error
 		return;
 	}
-
-	Player player = GameManager::Get()->GetCurrentPlayer();
 
 	Cell cell = grid[x][y];
 	cell.SetLocalPosition(Position{ x,y });
 	cell.SetGlobalPosition(Position{ _x - m_cellSize / 2, _y - m_cellSize / 2 });
-	cell.SetSymbol(player.mark);
+	cell.SetSymbol(GameManager::Get()->GetCurrentPlayer().mark);
 	grid[x][y] = cell;
 
 	GameManager::Get()->SwitchPlayer();

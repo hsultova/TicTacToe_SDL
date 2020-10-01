@@ -3,7 +3,6 @@
 #include <SDL.h>
 
 #include <string>
-#include <vector>
 
 #include "Core/Texture.h"
 #include "Cell.h"
