@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 #include <stdio.h>
 #include <assert.h> 
+#include <algorithm>
 
 GameManager* GameManager::s_instance = nullptr;
 
@@ -27,6 +28,9 @@ GameManager::GameManager()
 {
 	m_oTexture = new Texture();
 	m_xTexture = new Texture();
+
+	m_oPlayer = Player{ "o", Symbol::o };
+	m_xPlayer = Player{ "x", Symbol::x };
 }
 
 GameManager::~GameManager()
@@ -120,8 +124,33 @@ Texture* GameManager::GetOTexture() const
 	return m_oTexture;
 }
 
+Player GameManager::GetCurrentPlayer() const
+{
+	return m_currentPlayer;
+}
+
+void GameManager::SwitchPlayer()
+{
+	if (m_currentPlayer.mark == Symbol::x)
+	{
+		m_currentPlayer = m_oPlayer;
+	}
+	else
+	{
+		m_currentPlayer = m_xPlayer;
+	}
+}
+
 void GameManager::LoadTextures()
 {
 	m_xTexture->LoadFromFile("Textures/x.JPG");
 	m_oTexture->LoadFromFile("Textures/o.JPG");
+}
+
+void GameManager::ChangeTurn()
+{
+}
+
+void GameManager::CheckVictory()
+{
 }

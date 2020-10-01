@@ -1,11 +1,5 @@
 #pragma once
-
-enum class Mark
-{
-	e,
-	x,
-	o
-};
+#include "Cell.h"
 
 struct GridColor
 {
@@ -18,7 +12,7 @@ struct GridColor
 class Grid
 {
 public:
-	int grid[3][3];
+	Cell grid[3][3];
 
 	Grid();
 
@@ -26,7 +20,7 @@ public:
 	void OnMouseClick(int _x, int _y);
 
 private:
-	const int m_cellWidth = 100;
+	const int m_cellSize = 100;
 	const int m_borderThickness = 5;
 
 	GridColor m_gridColor;

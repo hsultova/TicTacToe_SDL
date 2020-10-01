@@ -2,7 +2,17 @@
 
 #include <SDL.h>
 
+#include <string>
+#include <vector>
+
 #include "Core/Texture.h"
+#include "Cell.h"
+
+struct Player
+{
+	std::string name = "x";
+	Symbol mark = Symbol::x;
+};
 
 class GameManager
 {
@@ -27,7 +37,12 @@ public:
 	Texture* GetXTexture() const;
 	Texture* GetOTexture() const;
 
+	Player GetCurrentPlayer() const;
+
+	void SwitchPlayer();
 	void LoadTextures();
+	void ChangeTurn();
+	void CheckVictory();
 
 private:
 	static GameManager* s_instance;
@@ -40,5 +55,9 @@ private:
 
 	Texture* m_xTexture;
 	Texture* m_oTexture;
+
+	Player m_currentPlayer;
+	Player m_xPlayer;
+	Player m_oPlayer;
 };
 

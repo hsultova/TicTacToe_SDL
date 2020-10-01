@@ -22,21 +22,11 @@ int main(int argc, char* args[])
 	//Event handler
 	SDL_Event e;
 
-	int x = 0;
-	int y = 0;
-
 	Grid grid;
-
-
 
 	while (!quit)
 	{
 		//Input events
-		//Game Logic
-		//Rendering
-
-
-
 		//Handle events on queue
 		while (SDL_PollEvent(&e) != 0)
 		{
@@ -48,12 +38,17 @@ int main(int argc, char* args[])
 
 			if (e.type == SDL_MOUSEBUTTONDOWN)
 			{
+				int x = 0;
+				int y = 0;
 				SDL_GetMouseState(&x, &y);
 				grid.OnMouseClick(x, y);
 			}
-			
 		}
 
+		//Game Logic
+		GameManager::Get()->CheckVictory();
+
+		//Rendering
 		SDL_SetRenderDrawColor(GameManager::Get()->GetRenderer(), 255, 255, 255, 255);
 		SDL_RenderClear(GameManager::Get()->GetRenderer());
 
@@ -63,14 +58,17 @@ int main(int argc, char* args[])
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				if (grid.grid[i][j] == 1)
+				Cell cell = grid.grid[i][j];
+				if (cell.GetSymbol() == Symbol::o)
 				{
-					GameManager::Get()->GetXTexture()->Render(x - 100 / 2, y - 100 / 2);
+					GameManager::Get()->GetOTexture()->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
+				}
+				else if (cell.GetSymbol() == Symbol::x)
+				{
+					GameManager::Get()->GetXTexture()->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
 				}
 			}
 		}
-
-		//GameManager::Get()->GetXTexture()->Render(x - 100 / 2, y - 100 / 2);
 
 		SDL_RenderPresent(GameManager::Get()->GetRenderer());
 	}
