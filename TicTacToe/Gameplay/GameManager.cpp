@@ -158,7 +158,83 @@ void GameManager::ChangeTurn()
 {
 }
 
-bool GameManager::HasVictory()
+Player GameManager::GetPlayer(const Symbol _symbol)
 {
-	return false;
+	if (_symbol == Symbol::x)
+	{
+		return m_xPlayer;
+	}
+	else
+	{
+		return m_oPlayer;
+	}
+}
+
+GameState GameManager::CheckVictory()
+{
+	bool hasWinner = false;
+	Player winner;
+
+	for (int i = 1; i < 3; i++)
+	{
+		if (m_grid->grid[i][0].GetSymbol() != Symbol::e 
+			&& m_grid->grid[i][0].GetSymbol() == m_grid->grid[i][1].GetSymbol() 
+			&& m_grid->grid[i][1].GetSymbol() == m_grid->grid[i][2].GetSymbol())
+		{
+			winner = GetPlayer(m_grid->grid[i][0].GetSymbol());
+			hasWinner = true;
+		}
+	}
+
+	for (int i = 1; i < 3; i++)
+	{
+		if (m_grid->grid[0][i].GetSymbol() != Symbol::e 
+			&& m_grid->grid[0][i].GetSymbol() == m_grid->grid[1][i].GetSymbol() 
+			&& m_grid->grid[1][i].GetSymbol() == m_grid->grid[2][i].GetSymbol())
+		{
+			winner = GetPlayer(m_grid->grid[0][i].GetSymbol());
+			hasWinner = true;
+		}
+	}
+
+		if (m_grid->grid[0][0].GetSymbol() != Symbol::e 
+			&& m_grid->grid[0][0].GetSymbol() == m_grid->grid[1][1].GetSymbol() 
+			&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][2].GetSymbol())
+		{
+			winner = GetPlayer(m_grid->grid[0][0].GetSymbol());
+			hasWinner = true;
+		}
+
+		if (m_grid->grid[0][2].GetSymbol() != Symbol::e 
+			&& m_grid->grid[0][2].GetSymbol() == m_grid->grid[1][1].GetSymbol() 
+			&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][0].GetSymbol())
+		{
+			winner = GetPlayer(m_grid->grid[0][2].GetSymbol());
+			hasWinner = true;
+		}
+
+		if (hasWinner)
+		{
+			if (winner.mark == Symbol::x)
+			{
+				return GameState::xWon;
+			}
+			else
+			{
+				return GameState::oWon;
+			}
+		}
+		
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				if(m_grid->grid[i][j].GetSymbol() == Symbol::e)
+				{
+					return GameState::inProgress;
+				}
+			}
+		}
+		
+	return GameState::draw;
 }

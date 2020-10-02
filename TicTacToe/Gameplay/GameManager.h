@@ -13,6 +13,14 @@ struct Player
 	Symbol mark = Symbol::x;
 };
 
+enum class GameState
+{
+	inProgress,
+	draw,
+	xWon,
+	oWon
+};
+
 class GameManager
 {
 public:
@@ -42,7 +50,8 @@ public:
 	void SwitchPlayer();
 	void LoadTextures();
 	void ChangeTurn();
-	bool HasVictory();
+	Player GetPlayer(const Symbol _symbol);
+	GameState CheckVictory();
 
 private:
 	static GameManager* s_instance;

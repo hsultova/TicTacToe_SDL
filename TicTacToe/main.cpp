@@ -46,9 +46,9 @@ int main(int argc, char* args[])
 		}
 
 		//Game Logic
-		if (GameManager::Get()->HasVictory())
+		if (GameManager::Get()->CheckVictory() != GameState::inProgress)
 		{
-
+			GameManager::Get()->GetGrid()->Clear();
 		}
 
 		//Rendering
