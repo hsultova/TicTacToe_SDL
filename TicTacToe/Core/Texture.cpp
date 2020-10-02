@@ -1,6 +1,7 @@
 #include "Texture.h"
 
 #include <SDL_image.h>
+#include <assert.h> 
 
 #include "Gameplay\GameManager.h"
 
@@ -38,6 +39,8 @@ bool Texture::LoadFromFile(std::string _path)
 		return false;
 	}
 	SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, 255, 255));
+
+	assert(GameManager::Get()->GetRenderer() != nullptr);
 
 	newTexture = SDL_CreateTextureFromSurface(GameManager::Get()->GetRenderer(), loadedSurface);
 	if (newTexture == nullptr)
@@ -78,6 +81,7 @@ void Texture::Render(int x, int y, SDL_Rect* clip)
 		renderRect.h = clip->h;
 	}
 
+	assert(GameManager::Get()->GetRenderer() != nullptr);
 	SDL_RenderCopy(GameManager::Get()->GetRenderer(), m_texture, clip, &renderRect);
 }
 

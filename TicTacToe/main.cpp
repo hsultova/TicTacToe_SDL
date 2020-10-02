@@ -1,5 +1,7 @@
 ﻿#include <stdio.h>
 
+#include <assert.h> 
+
 #include "Gameplay\GameManager.h"
 #include "Core/Texture.h"
 #include "Gameplay\Grid.h"
@@ -22,8 +24,6 @@ int main(int argc, char* args[])
 	//Event handler
 	SDL_Event e;
 
-	Grid grid;
-
 	while (!quit)
 	{
 		//Input events
@@ -41,24 +41,28 @@ int main(int argc, char* args[])
 				int x = 0;
 				int y = 0;
 				SDL_GetMouseState(&x, &y);
-				grid.OnMouseClick(x, y);
+				GameManager::Get()->GetGrid()->OnMouseClick(x, y);
 			}
 		}
 
 		//Game Logic
-		GameManager::Get()->CheckVictory();
+		if (GameManager::Get()->HasVictory())
+		{
+
+		}
 
 		//Rendering
+		assert(GameManager::Get()->GetRenderer() != nullptr);
 		SDL_SetRenderDrawColor(GameManager::Get()->GetRenderer(), 255, 255, 255, 255);
 		SDL_RenderClear(GameManager::Get()->GetRenderer());
 
-		grid.Render();
+		GameManager::Get()->GetGrid()->Render();
 
 		for (int i = 0; i < 3; i++)
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				Cell cell = grid.grid[i][j];
+				Cell cell = GameManager::Get()->GetGrid()->grid[i][j];
 				if (cell.GetSymbol() == Symbol::o)
 				{
 					GameManager::Get()->GetOTexture()->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);

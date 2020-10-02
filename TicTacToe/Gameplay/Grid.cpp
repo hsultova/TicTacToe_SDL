@@ -1,6 +1,7 @@
 #include "Grid.h"
 
 #include <SDL.h>
+#include <assert.h> 
 
 #include "GameManager.h"
 #include "Core/Texture.h"
@@ -17,8 +18,13 @@ Grid::Grid()
 	}
 }
 
+Grid::~Grid()
+{
+}
+
 void Grid::Render()
 {
+	assert(GameManager::Get()->GetRenderer() != nullptr);
 	SDL_SetRenderDrawColor(GameManager::Get()->GetRenderer(), m_gridColor.Red, m_gridColor.Green, m_gridColor.Blue, m_gridColor.Alpha);
 	int lineWidth = GameManager::Get()->GetScreenWidth() - 2 * m_cellSize;
 
@@ -51,10 +57,21 @@ void Grid::OnMouseClick(int _x, int _y)
 	}
 
 	Cell cell = grid[x][y];
-	cell.SetLocalPosition(Position{ x,y });
+	cell.SetLocalPosition(Position{ x, y });
 	cell.SetGlobalPosition(Position{ _x - m_cellSize / 2, _y - m_cellSize / 2 });
 	cell.SetSymbol(GameManager::Get()->GetCurrentPlayer().mark);
 	grid[x][y] = cell;
 
 	GameManager::Get()->SwitchPlayer();
+}
+
+void Grid::Clear()
+{
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			grid[i][j].SetSymbol(Symbol::e);
+		}
+	}
 }

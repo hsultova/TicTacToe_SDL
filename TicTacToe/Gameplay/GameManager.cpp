@@ -28,14 +28,10 @@ GameManager::GameManager()
 	m_oTexture = new Texture();
 	m_xTexture = new Texture();
 
+	m_grid = new Grid();
+	
 	m_oPlayer = Player{ "o", Symbol::o };
 	m_xPlayer = Player{ "x", Symbol::x };
-}
-
-GameManager::~GameManager()
-{
-	delete m_oTexture;
-	delete m_xTexture;
 }
 
 SDL_Window* GameManager::GetWindow() const
@@ -93,6 +89,10 @@ bool GameManager::Initialize()
 
 void GameManager::Destroy()
 {
+	delete m_oTexture;
+	delete m_xTexture;
+	delete m_grid;
+
 	SDL_DestroyWindow(m_window);
 	m_window = nullptr;
 
@@ -123,6 +123,11 @@ Texture* GameManager::GetOTexture() const
 	return m_oTexture;
 }
 
+Grid* GameManager::GetGrid() const
+{
+	return m_grid;
+}
+
 Player GameManager::GetCurrentPlayer() const
 {
 	return m_currentPlayer;
@@ -142,6 +147,9 @@ void GameManager::SwitchPlayer()
 
 void GameManager::LoadTextures()
 {
+	if (m_oTexture == nullptr || m_xTexture == nullptr)
+		return;
+
 	m_xTexture->LoadFromFile("Textures/x.JPG");
 	m_oTexture->LoadFromFile("Textures/o.JPG");
 }
@@ -150,6 +158,7 @@ void GameManager::ChangeTurn()
 {
 }
 
-void GameManager::CheckVictory()
+bool GameManager::HasVictory()
 {
+	return false;
 }

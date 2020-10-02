@@ -5,7 +5,7 @@
 #include <string>
 
 #include "Core/Texture.h"
-#include "Cell.h"
+#include "Grid.h"
 
 struct Player
 {
@@ -17,7 +17,6 @@ class GameManager
 {
 public:
 	GameManager();
-	~GameManager();
 
 	static GameManager* Get();
 
@@ -36,12 +35,14 @@ public:
 	Texture* GetXTexture() const;
 	Texture* GetOTexture() const;
 
+	Grid* GetGrid() const;
+
 	Player GetCurrentPlayer() const;
 
 	void SwitchPlayer();
 	void LoadTextures();
 	void ChangeTurn();
-	void CheckVictory();
+	bool HasVictory();
 
 private:
 	static GameManager* s_instance;
@@ -54,6 +55,7 @@ private:
 
 	Texture* m_xTexture;
 	Texture* m_oTexture;
+	Grid* m_grid;
 
 	Player m_currentPlayer;
 	Player m_xPlayer;
