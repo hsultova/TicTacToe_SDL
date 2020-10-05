@@ -25,18 +25,6 @@ void GameManager::UnregisterInstance(GameManager* _instance)
 	s_instance = nullptr;
 }
 
-GameManager::GameManager()
-{
-	m_oTexture = new Texture();
-	m_xTexture = new Texture();
-	m_textTexture = new Texture();
-
-	m_grid = new Grid();
-	
-	m_oPlayer = Player{ "o", Symbol::o };
-	m_xPlayer = Player{ "x", Symbol::x };
-}
-
 SDL_Window* GameManager::GetWindow() const
 {
 	return m_window;
@@ -93,6 +81,22 @@ bool GameManager::Initialize()
 		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
 		return false;
 	}
+
+	//Initialize class members
+
+	m_oTexture = new Texture();
+	m_xTexture = new Texture();
+	m_textTexture = new Texture();
+
+	m_grid = new Grid();
+
+	m_oPlayerColor = SDL_Color{ 157, 7, 8, 255 };
+	m_xPlayerColor = SDL_Color{ 11, 113, 100, 255 };
+	m_mainColor = SDL_Color{ 0, 48, 119, 255 };
+
+	m_oPlayer = Player{ "O", Symbol::o, m_oPlayerColor };
+	m_xPlayer = Player{ "X", Symbol::x, m_xPlayerColor };
+	m_currentPlayer = m_xPlayer;
 
 	return true;
 }
@@ -194,8 +198,8 @@ GameState GameManager::CheckVictory()
 
 	for (int i = 1; i < 3; i++)
 	{
-		if (m_grid->grid[i][0].GetSymbol() != Symbol::e 
-			&& m_grid->grid[i][0].GetSymbol() == m_grid->grid[i][1].GetSymbol() 
+		if (m_grid->grid[i][0].GetSymbol() != Symbol::e
+			&& m_grid->grid[i][0].GetSymbol() == m_grid->grid[i][1].GetSymbol()
 			&& m_grid->grid[i][1].GetSymbol() == m_grid->grid[i][2].GetSymbol())
 		{
 			winner = GetPlayer(m_grid->grid[i][0].GetSymbol());
@@ -205,8 +209,8 @@ GameState GameManager::CheckVictory()
 
 	for (int i = 1; i < 3; i++)
 	{
-		if (m_grid->grid[0][i].GetSymbol() != Symbol::e 
-			&& m_grid->grid[0][i].GetSymbol() == m_grid->grid[1][i].GetSymbol() 
+		if (m_grid->grid[0][i].GetSymbol() != Symbol::e
+			&& m_grid->grid[0][i].GetSymbol() == m_grid->grid[1][i].GetSymbol()
 			&& m_grid->grid[1][i].GetSymbol() == m_grid->grid[2][i].GetSymbol())
 		{
 			winner = GetPlayer(m_grid->grid[0][i].GetSymbol());
@@ -214,44 +218,75 @@ GameState GameManager::CheckVictory()
 		}
 	}
 
-		if (m_grid->grid[0][0].GetSymbol() != Symbol::e 
-			&& m_grid->grid[0][0].GetSymbol() == m_grid->grid[1][1].GetSymbol() 
-			&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][2].GetSymbol())
-		{
-			winner = GetPlayer(m_grid->grid[0][0].GetSymbol());
-			hasWinner = true;
-		}
+	if (m_grid->grid[0][0].GetSymbol() != Symbol::e
+		&& m_grid->grid[0][0].GetSymbol() == m_grid->grid[1][1].GetSymbol()
+		&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][2].GetSymbol())
+	{
+		winner = GetPlayer(m_grid->grid[0][0].GetSymbol());
+		hasWinner = true;
+	}
 
-		if (m_grid->grid[0][2].GetSymbol() != Symbol::e 
-			&& m_grid->grid[0][2].GetSymbol() == m_grid->grid[1][1].GetSymbol() 
-			&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][0].GetSymbol())
-		{
-			winner = GetPlayer(m_grid->grid[0][2].GetSymbol());
-			hasWinner = true;
-		}
+	if (m_grid->grid[0][2].GetSymbol() != Symbol::e
+		&& m_grid->grid[0][2].GetSymbol() == m_grid->grid[1][1].GetSymbol()
+		&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][0].GetSymbol())
+	{
+		winner = GetPlayer(m_grid->grid[0][2].GetSymbol());
+		hasWinner = true;
+	}
 
-		if (hasWinner)
+	if (hasWinner)
+	{
+		if (winner.mark == Symbol::x)
 		{
-			if (winner.mark == Symbol::x)
+			return GameState::xWon;
+		}
+		else
+		{
+			return GameState::oWon;
+		}
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			if (m_grid->grid[i][j].GetSymbol() == Symbol::e)
 			{
-				return GameState::xWon;
-			}
-			else
-			{
-				return GameState::oWon;
+				return GameState::inProgress;
 			}
 		}
-		
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				if(m_grid->grid[i][j].GetSymbol() == Symbol::e)
-				{
-					return GameState::inProgress;
-				}
-			}
-		}
-		
+	}
+
 	return GameState::draw;
+}
+
+const std::string GameManager::GetGameState(const GameState& _gameState) const
+{
+	switch (_gameState)
+	{
+	case GameState::draw:
+		return "Draw";
+	case GameState::inProgress:
+		return "In Progress";
+	case GameState::oWon:
+		return "O Won";
+	case GameState::xWon:
+		return "X Won";
+	}
+	return std::string();
+}
+
+const SDL_Color GameManager::GetXPlayerColor() const
+{
+	return m_xPlayerColor;
+}
+
+const SDL_Color GameManager::GetOPlayerColor() const
+{
+	return m_oPlayerColor;
+}
+
+const SDL_Color GameManager::GetMainColor() const
+{
+	return m_mainColor;
 }

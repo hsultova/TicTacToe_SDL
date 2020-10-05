@@ -27,7 +27,7 @@ void Grid::Render()
 	SDL_Renderer* renderer = GameManager::Get()->GetRenderer();
 	assert(renderer != nullptr);
 
-	SDL_SetRenderDrawColor(renderer, m_gridColor.Red, m_gridColor.Green, m_gridColor.Blue, m_gridColor.Alpha);
+	SDL_SetRenderDrawColor(renderer, m_gridColor.r, m_gridColor.g, m_gridColor.b, m_gridColor.a);
 	int lineWidth = GameManager::Get()->GetScreenWidth() - 2 * m_cellSize;
 
 	//Draw grid using rectangles
@@ -65,6 +65,7 @@ void Grid::OnMouseClick(int _x, int _y)
 	grid[x][y] = cell;
 
 	GameManager::Get()->SwitchPlayer();
+	GameManager::Get()->GetTextTexture()->LoadFromRenderedText(GameManager::Get()->GetCurrentPlayer().name + " Turn", GameManager::Get()->GetCurrentPlayer().color);
 }
 
 void Grid::Clear()

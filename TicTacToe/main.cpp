@@ -18,8 +18,8 @@ int main(int argc, char* args[])
 	}
 
 	GameManager::Get()->LoadTextures();
-	GameManager::Get()->GetTextTexture()->SetFont(TTF_OpenFont("Textures/Lovely_Kids.ttf", 28));
-	GameManager::Get()->GetTextTexture()->LoadFromRenderedText("Tic Tac Toe", SDL_Color{ 255,0,0,255 });
+	GameManager::Get()->GetTextTexture()->SetFont(TTF_OpenFont("Textures/Lovely_Kids.ttf", 64));
+	GameManager::Get()->GetTextTexture()->LoadFromRenderedText("X Turn", GameManager::Get()->GetXPlayerColor());
 
 	bool quit = false;
 	//Event handler
@@ -53,9 +53,12 @@ int main(int argc, char* args[])
 		}
 
 		//Game Logic
-		if (GameManager::Get()->CheckVictory() != GameState::inProgress)
+		GameState gameState = GameManager::Get()->CheckVictory();
+		if (gameState != GameState::inProgress)
 		{
-			grid->Clear();
+			GameManager::Get()->GetTextTexture()->LoadFromRenderedText(GameManager::Get()->GetGameState(gameState), GameManager::Get()->GetMainColor());
+
+			//grid->Clear();
 		}
 
 		//Rendering

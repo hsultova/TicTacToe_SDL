@@ -9,8 +9,9 @@
 
 struct Player
 {
-	std::string name = "x";
-	Symbol mark = Symbol::x;
+	std::string name;
+	Symbol mark;
+	SDL_Color color;
 };
 
 enum class GameState
@@ -24,8 +25,6 @@ enum class GameState
 class GameManager
 {
 public:
-	GameManager();
-
 	static GameManager* Get();
 
 	static void RegisterInstance(GameManager* _instance);
@@ -54,6 +53,12 @@ public:
 	Player GetPlayer(const Symbol _symbol);
 	GameState CheckVictory();
 
+	const std::string GetGameState(const GameState& _gameState) const;
+
+	const SDL_Color GetXPlayerColor() const;
+	const SDL_Color GetOPlayerColor() const;
+	const SDL_Color GetMainColor() const;
+
 private:
 	static GameManager* s_instance;
 
@@ -71,5 +76,9 @@ private:
 	Player m_currentPlayer;
 	Player m_xPlayer;
 	Player m_oPlayer;
+
+	SDL_Color m_xPlayerColor;
+	SDL_Color m_oPlayerColor;
+	SDL_Color m_mainColor;
 };
 

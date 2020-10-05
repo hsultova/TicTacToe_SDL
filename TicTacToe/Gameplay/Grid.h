@@ -1,13 +1,7 @@
 #pragma once
-#include "Cell.h"
+#include <SDL.h>
 
-struct GridColor
-{
-	int Red;
-	int Green;
-	int Blue;
-	int Alpha;
-};
+#include "Cell.h"
 
 class Grid
 {
@@ -25,6 +19,6 @@ private:
 	const int m_cellSize = 100;
 	const int m_borderThickness = 5;
 
-	GridColor m_gridColor = GridColor{ 0, 0, 139, 255 };
+	SDL_Color m_gridColor = SDL_Color{ 0, 0, 139, 255 };
 };
 
