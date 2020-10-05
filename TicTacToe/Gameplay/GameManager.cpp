@@ -159,6 +159,117 @@ Player GameManager::GetCurrentPlayer() const
 	return m_currentPlayer;
 }
 
+void GameManager::PlayGame()
+{
+	LoadTextures();
+	GetTextTexture()->SetFont(TTF_OpenFont("Textures/Lovely_Kids.ttf", 64));
+	GetTextTexture()->LoadFromRenderedText("X Turn", GameManager::Get()->GetXPlayerColor());
+
+	bool quit = false;
+	bool renderLine = false;
+	//Event handler
+	SDL_Event e;
+
+	Grid* grid = GetGrid();
+	assert(grid != nullptr);
+
+	SDL_Renderer* renderer = GetRenderer();
+	assert(renderer != nullptr);
+
+	while (!quit)
+	{
+		//Input events
+		//Handle events on queue
+		while (SDL_PollEvent(&e) != 0)
+		{
+			//User requests quit
+			if (e.type == SDL_QUIT)
+			{
+				quit = true;
+			}
+
+			if (e.type == SDL_MOUSEBUTTONDOWN)
+			{
+				int x = 0;
+				int y = 0;
+				SDL_GetMouseState(&x, &y);
+				grid->OnMouseClick(x, y);
+			}
+		}
+
+		//Game Logic
+		GameState gameState = CheckVictory();
+		if (gameState != GameState::inProgress)
+		{
+			GetTextTexture()->LoadFromRenderedText(GetGameState(gameState), GetMainColor());
+
+			if (gameState != GameState::draw)
+			{
+				renderLine = true;
+			}
+
+			//grid->Clear();
+		}
+
+		//Rendering
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		SDL_RenderClear(renderer);
+
+		GetTextTexture()->Render(100, GameManager::Get()->GetScreenHeight() - 100);
+		grid->Render();
+
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				Cell cell = grid->grid[i][j];
+				if (cell.GetSymbol() == Symbol::o)
+				{
+					GetOTexture()->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
+				}
+				else if (cell.GetSymbol() == Symbol::x)
+				{
+					GetXTexture()->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
+				}
+			}
+		}
+
+		if (renderLine == true)
+		{
+			Line line = GetLine();
+			SDL_Color color = GetMainColor();
+			SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+			int offset = 25;
+			int x = line.start.x + offset;
+			int y = line.start.y + offset;
+			while (true)
+			{
+				SDL_Rect rect = { x, y , 25, 20 };
+				SDL_RenderFillRect(renderer, &rect);
+				if (x <= line.end.x + offset)
+				{
+					++x;
+				}
+
+				if (y <= line.end.y + offset)
+				{
+					++y;
+				}
+
+				if (x > line.end.x + offset && y > line.end.y + offset)
+				{
+					break;
+				}
+			}
+
+			//SDL_RenderDrawLine(renderer, line.start.x, line.start.y, line.end.x, line.end.y);
+		}
+
+		SDL_RenderPresent(renderer);
+	}
+}
+
 void GameManager::SwitchPlayer()
 {
 	if (m_currentPlayer.mark == Symbol::x)

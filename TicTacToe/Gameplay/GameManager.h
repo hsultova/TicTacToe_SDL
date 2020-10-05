@@ -55,6 +55,7 @@ public:
 
 	Player GetCurrentPlayer() const;
 
+	void PlayGame();
 	void SwitchPlayer();
 	void LoadTextures();
 	void ChangeTurn();
