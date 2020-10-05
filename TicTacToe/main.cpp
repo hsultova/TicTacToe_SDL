@@ -22,6 +22,7 @@ int main(int argc, char* args[])
 	GameManager::Get()->GetTextTexture()->LoadFromRenderedText("X Turn", GameManager::Get()->GetXPlayerColor());
 
 	bool quit = false;
+	bool renderLine = false;
 	//Event handler
 	SDL_Event e;
 
@@ -58,6 +59,11 @@ int main(int argc, char* args[])
 		{
 			GameManager::Get()->GetTextTexture()->LoadFromRenderedText(GameManager::Get()->GetGameState(gameState), GameManager::Get()->GetMainColor());
 
+			if (gameState != GameState::draw)
+			{
+				renderLine = true;
+			}
+
 			//grid->Clear();
 		}
 
@@ -82,6 +88,38 @@ int main(int argc, char* args[])
 					GameManager::Get()->GetXTexture()->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
 				}
 			}
+		}
+
+		if (renderLine == true)
+		{
+			Line line = GameManager::Get()->GetLine();
+			SDL_Color color = GameManager::Get()->GetMainColor();
+			SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+			int offset = 25;
+			int x = line.start.x + offset;
+			int y = line.start.y + offset;
+			while (true)
+			{
+				SDL_Rect rect = { x, y , 25, 20 };
+				SDL_RenderFillRect(renderer, &rect);
+				if (x <= line.end.x + offset)
+				{
+					++x;
+				}
+
+				if (y <= line.end.y + offset)
+				{
+					++y;
+				}
+
+				if (x > line.end.x + offset && y > line.end.y + offset)
+				{
+					break;
+				}
+			}
+
+			//SDL_RenderDrawLine(renderer, line.start.x, line.start.y, line.end.x, line.end.y);
 		}
 
 		SDL_RenderPresent(renderer);

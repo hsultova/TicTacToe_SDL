@@ -14,6 +14,12 @@ struct Player
 	SDL_Color color;
 };
 
+struct Line
+{
+	Position start;
+	Position end;
+};
+
 enum class GameState
 {
 	inProgress,
@@ -45,6 +51,8 @@ public:
 
 	Grid* GetGrid() const;
 
+	Line GetLine() const;
+
 	Player GetCurrentPlayer() const;
 
 	void SwitchPlayer();
@@ -72,6 +80,8 @@ private:
 	Texture* m_oTexture;
 	Texture* m_textTexture;
 	Grid* m_grid;
+
+	Line m_line;
 
 	Player m_currentPlayer;
 	Player m_xPlayer;

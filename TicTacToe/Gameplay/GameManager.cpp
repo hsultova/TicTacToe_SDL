@@ -149,6 +149,11 @@ Grid* GameManager::GetGrid() const
 	return m_grid;
 }
 
+Line GameManager::GetLine() const
+{
+	return m_line;
+}
+
 Player GameManager::GetCurrentPlayer() const
 {
 	return m_currentPlayer;
@@ -203,6 +208,8 @@ GameState GameManager::CheckVictory()
 			&& m_grid->grid[i][1].GetSymbol() == m_grid->grid[i][2].GetSymbol())
 		{
 			winner = GetPlayer(m_grid->grid[i][0].GetSymbol());
+			m_line.start = m_grid->grid[i][0].GetGlobalPosition();
+			m_line.end = m_grid->grid[i][2].GetGlobalPosition();
 			hasWinner = true;
 		}
 	}
@@ -214,6 +221,8 @@ GameState GameManager::CheckVictory()
 			&& m_grid->grid[1][i].GetSymbol() == m_grid->grid[2][i].GetSymbol())
 		{
 			winner = GetPlayer(m_grid->grid[0][i].GetSymbol());
+			m_line.start = m_grid->grid[0][i].GetGlobalPosition();
+			m_line.end = m_grid->grid[2][i].GetGlobalPosition();
 			hasWinner = true;
 		}
 	}
@@ -223,6 +232,8 @@ GameState GameManager::CheckVictory()
 		&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][2].GetSymbol())
 	{
 		winner = GetPlayer(m_grid->grid[0][0].GetSymbol());
+		m_line.start = m_grid->grid[0][0].GetGlobalPosition();
+		m_line.end = m_grid->grid[2][2].GetGlobalPosition();
 		hasWinner = true;
 	}
 
@@ -231,6 +242,8 @@ GameState GameManager::CheckVictory()
 		&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][0].GetSymbol())
 	{
 		winner = GetPlayer(m_grid->grid[0][2].GetSymbol());
+		m_line.start = m_grid->grid[0][2].GetGlobalPosition();
+		m_line.end = m_grid->grid[2][0].GetGlobalPosition();
 		hasWinner = true;
 	}
 
