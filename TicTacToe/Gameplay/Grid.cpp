@@ -24,22 +24,24 @@ Grid::~Grid()
 
 void Grid::Render()
 {
-	assert(GameManager::Get()->GetRenderer() != nullptr);
-	SDL_SetRenderDrawColor(GameManager::Get()->GetRenderer(), m_gridColor.Red, m_gridColor.Green, m_gridColor.Blue, m_gridColor.Alpha);
+	SDL_Renderer* renderer = GameManager::Get()->GetRenderer();
+	assert(renderer != nullptr);
+
+	SDL_SetRenderDrawColor(renderer, m_gridColor.Red, m_gridColor.Green, m_gridColor.Blue, m_gridColor.Alpha);
 	int lineWidth = GameManager::Get()->GetScreenWidth() - 2 * m_cellSize;
 
 	//Draw grid using rectangles
 	SDL_Rect firstHorizontalLine = { m_cellSize, GameManager::Get()->GetScreenHeight() / 4, lineWidth, m_borderThickness };
-	SDL_RenderFillRect(GameManager::Get()->GetRenderer(), &firstHorizontalLine);
+	SDL_RenderFillRect(renderer, &firstHorizontalLine);
 
 	SDL_Rect secondHorizontalLine = { m_cellSize, GameManager::Get()->GetScreenHeight() / 3 + m_cellSize, lineWidth, m_borderThickness };
-	SDL_RenderFillRect(GameManager::Get()->GetRenderer(), &secondHorizontalLine);
+	SDL_RenderFillRect(renderer, &secondHorizontalLine);
 
 	SDL_Rect firstVerticallLine = { static_cast<int>(2.5 * m_cellSize), GameManager::Get()->GetScreenHeight() / m_cellSize, m_borderThickness, lineWidth - static_cast<int>(1.5 * m_cellSize) };
-	SDL_RenderFillRect(GameManager::Get()->GetRenderer(), &firstVerticallLine);
+	SDL_RenderFillRect(renderer, &firstVerticallLine);
 
 	SDL_Rect secondVerticalLine = { static_cast<int>(4.5 * m_cellSize), GameManager::Get()->GetScreenHeight() / m_cellSize, m_borderThickness , lineWidth - static_cast<int>(1.5 * m_cellSize) };
-	SDL_RenderFillRect(GameManager::Get()->GetRenderer(), &secondVerticalLine);
+	SDL_RenderFillRect(renderer, &secondVerticalLine);
 }
 
 void Grid::OnMouseClick(int _x, int _y)

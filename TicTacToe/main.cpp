@@ -20,9 +20,14 @@ int main(int argc, char* args[])
 	GameManager::Get()->LoadTextures();
 
 	bool quit = false;
-
 	//Event handler
 	SDL_Event e;
+
+	Grid* grid = GameManager::Get()->GetGrid();
+	assert(grid != nullptr);
+
+	SDL_Renderer* renderer = GameManager::Get()->GetRenderer();
+	assert(renderer != nullptr);
 
 	while (!quit)
 	{
@@ -41,28 +46,27 @@ int main(int argc, char* args[])
 				int x = 0;
 				int y = 0;
 				SDL_GetMouseState(&x, &y);
-				GameManager::Get()->GetGrid()->OnMouseClick(x, y);
+				grid->OnMouseClick(x, y);
 			}
 		}
 
 		//Game Logic
 		if (GameManager::Get()->CheckVictory() != GameState::inProgress)
 		{
-			GameManager::Get()->GetGrid()->Clear();
+			grid->Clear();
 		}
 
 		//Rendering
-		assert(GameManager::Get()->GetRenderer() != nullptr);
-		SDL_SetRenderDrawColor(GameManager::Get()->GetRenderer(), 255, 255, 255, 255);
-		SDL_RenderClear(GameManager::Get()->GetRenderer());
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		SDL_RenderClear(renderer);
 
-		GameManager::Get()->GetGrid()->Render();
+		grid->Render();
 
 		for (int i = 0; i < 3; i++)
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				Cell cell = GameManager::Get()->GetGrid()->grid[i][j];
+				Cell cell = grid->grid[i][j];
 				if (cell.GetSymbol() == Symbol::o)
 				{
 					GameManager::Get()->GetOTexture()->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
@@ -74,7 +78,7 @@ int main(int argc, char* args[])
 			}
 		}
 
-		SDL_RenderPresent(GameManager::Get()->GetRenderer());
+		SDL_RenderPresent(renderer);
 	}
 
 	//Free resources and close SDL
