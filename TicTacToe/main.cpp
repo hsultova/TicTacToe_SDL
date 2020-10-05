@@ -3,7 +3,7 @@
 #include <assert.h> 
 
 #include "Gameplay\GameManager.h"
-#include "Core/Texture.h"
+#include "Core\Texture.h"
 #include "Gameplay\Grid.h"
 
 int main(int argc, char* args[])
@@ -18,6 +18,8 @@ int main(int argc, char* args[])
 	}
 
 	GameManager::Get()->LoadTextures();
+	GameManager::Get()->GetTextTexture()->SetFont(TTF_OpenFont("Textures/Lovely_Kids.ttf", 28));
+	GameManager::Get()->GetTextTexture()->LoadFromRenderedText("Tic Tac Toe", SDL_Color{ 255,0,0,255 });
 
 	bool quit = false;
 	//Event handler
@@ -60,6 +62,7 @@ int main(int argc, char* args[])
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
 
+		GameManager::Get()->GetTextTexture()->Render(100, GameManager::Get()->GetScreenHeight() - 100);
 		grid->Render();
 
 		for (int i = 0; i < 3; i++)

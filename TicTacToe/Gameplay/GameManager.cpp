@@ -1,6 +1,8 @@
 #include "GameManager.h"
 
 #include <SDL_image.h>
+#include <SDL_ttf.h>
+
 #include <stdio.h>
 #include <assert.h> 
 
@@ -27,6 +29,7 @@ GameManager::GameManager()
 {
 	m_oTexture = new Texture();
 	m_xTexture = new Texture();
+	m_textTexture = new Texture();
 
 	m_grid = new Grid();
 	
@@ -84,6 +87,13 @@ bool GameManager::Initialize()
 		return false;
 	}
 
+	//Initialize SDL_ttf
+	if (TTF_Init() == -1)
+	{
+		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+		return false;
+	}
+
 	return true;
 }
 
@@ -91,6 +101,7 @@ void GameManager::Destroy()
 {
 	delete m_oTexture;
 	delete m_xTexture;
+	delete m_textTexture;
 	delete m_grid;
 
 	SDL_DestroyWindow(m_window);
@@ -100,6 +111,7 @@ void GameManager::Destroy()
 	m_renderer = nullptr;
 
 	IMG_Quit();
+	TTF_Quit();
 	SDL_Quit();
 }
 
@@ -121,6 +133,11 @@ Texture* GameManager::GetXTexture() const
 Texture* GameManager::GetOTexture() const
 {
 	return m_oTexture;
+}
+
+Texture* GameManager::GetTextTexture() const
+{
+	return m_textTexture;
 }
 
 Grid* GameManager::GetGrid() const

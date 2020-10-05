@@ -4,7 +4,7 @@
 #include <assert.h> 
 
 #include "GameManager.h"
-#include "Core/Texture.h"
+#include "..\Core\Texture.h"
 
 Grid::Grid()
 {

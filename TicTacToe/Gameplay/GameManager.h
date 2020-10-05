@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "Core/Texture.h"
+#include "..\Core\Texture.h"
 #include "Grid.h"
 
 struct Player
@@ -42,6 +42,7 @@ public:
 
 	Texture* GetXTexture() const;
 	Texture* GetOTexture() const;
+	Texture* GetTextTexture() const;
 
 	Grid* GetGrid() const;
 
@@ -64,6 +65,7 @@ private:
 
 	Texture* m_xTexture;
 	Texture* m_oTexture;
+	Texture* m_textTexture;
 	Grid* m_grid;
 
 	Player m_currentPlayer;
