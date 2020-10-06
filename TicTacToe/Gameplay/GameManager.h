@@ -50,6 +50,8 @@ public:
 	void PlayGame();
 	void ChangeTurn();
 	GameState CheckVictory();
+	void RestartGame();
+	bool CheckBounds(const Position& _position, const Position& _minPosition, const Position& _maxPosition);
 
 	const std::string GetGameState(const GameState& _gameState) const;
 
@@ -82,5 +84,8 @@ private:
 	SDL_Color m_xPlayerColor;
 	SDL_Color m_oPlayerColor;
 	SDL_Color m_mainColor;
+
+	bool m_renderLine = false;
+	bool m_endGame = false;
 };
 

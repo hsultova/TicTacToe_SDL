@@ -65,10 +65,12 @@ void Grid::OnMouseClick(int _x, int _y)
 	Cell cell = grid[x][y];
 	cell.SetLocalPosition(Position{ x, y });
 	cell.SetGlobalPosition(Position{ _x - m_cellSize / 2, _y - m_cellSize / 2 });
-	cell.SetSymbol(GameManager::Get()->GetCurrentPlayer().mark);
-	grid[x][y] = cell;
-
-	GameManager::Get()->ChangeTurn();
+	if (cell.GetSymbol() == Symbol::e)
+	{
+		cell.SetSymbol(GameManager::Get()->GetCurrentPlayer().mark);
+		grid[x][y] = cell;
+		GameManager::Get()->ChangeTurn();
+	}
 }
 
 void Grid::Clear()
@@ -84,11 +86,11 @@ void Grid::Clear()
 
 Position Grid::GetMinPosition()
 {
-	return Position{ m_firstHorizontalLinePosition.x, m_firstHorizontalLinePosition.y - m_cellSize};
+	return Position{ m_firstHorizontalLinePosition.x, m_firstHorizontalLinePosition.y - m_cellSize };
 }
 
 Position Grid::GetMaxPosition()
 {
-	return Position{ m_secondHorizontalLinePosition.x  + m_lineWidth, m_secondHorizontalLinePosition.y + m_cellSize};
+	return Position{ m_secondHorizontalLinePosition.x + m_lineWidth, m_secondHorizontalLinePosition.y + m_cellSize };
 }
 

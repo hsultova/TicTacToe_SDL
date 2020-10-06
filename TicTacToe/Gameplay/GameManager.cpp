@@ -143,8 +143,8 @@ void GameManager::PlayGame()
 	m_textTexture->LoadFromRenderedText("X Turn", m_xPlayerColor);
 
 	bool quit = false;
-	bool renderLine = false;
-	bool endGame = false;
+	m_renderLine = false;
+	m_endGame = false;
 	//Event handler
 	SDL_Event e;
 	SDL_Cursor* cursor;
@@ -194,19 +194,14 @@ void GameManager::PlayGame()
 				int y = 0;
 				SDL_GetMouseState(&x, &y);
 
-				if ((x < restartGameX + m_restartGameTexture->GetWidth() && x > restartGameX)
-					&& (y <restartGameY + m_restartGameTexture->GetHeight() && y >restartGameY))
+				if (CheckBounds(Position{ x,y }, 
+					Position{ restartGameX, restartGameY }, 
+					Position{ restartGameX + m_restartGameTexture->GetWidth() ,restartGameY + m_restartGameTexture->GetHeight() }))
 				{
-					endGame = false;
-					renderLine = false;
-					m_grid->Clear();
-					m_currentPlayer = m_xPlayer;
-					GameManager::Get()->m_textTexture->LoadFromRenderedText(GameManager::Get()->GetCurrentPlayer().name + " Turn", GameManager::Get()->GetCurrentPlayer().color);
+					RestartGame();
 				}
 
-				if (endGame == false
-					&& (x < m_grid->GetMaxPosition().x && x > m_grid->GetMinPosition().x)
-					&& (y < m_grid->GetMaxPosition().y && y > m_grid->GetMinPosition().y))
+				if (m_endGame == false && CheckBounds(Position{ x,y }, m_grid->GetMinPosition(), m_grid->GetMaxPosition()))
 				{
 					m_grid->OnMouseClick(x, y);
 				}
@@ -221,9 +216,9 @@ void GameManager::PlayGame()
 
 			if (gameState != GameState::draw)
 			{
-				renderLine = true;
+				m_renderLine = true;
 			}
-			endGame = true;
+			m_endGame = true;
 		}
 
 		//Rendering
@@ -250,7 +245,7 @@ void GameManager::PlayGame()
 			}
 		}
 
-		if (renderLine == true)
+		if (m_renderLine == true)
 		{
 			SDL_SetRenderDrawColor(renderer, m_mainColor.r, m_mainColor.g, m_mainColor.b, m_mainColor.a);
 
@@ -323,6 +318,13 @@ Player GameManager::GetPlayer(const Symbol _symbol)
 		return m_oPlayer;
 	}
 }
+
+bool GameManager::CheckBounds(const Position& _position, const Position& _minPosition, const Position& _maxPosition)
+{
+	return (_position.x < _maxPosition.x&& _position.x > _minPosition.x)
+		&& (_position.y < _maxPosition.y&& _position.y > _minPosition.y);
+}
+
 
 GameState GameManager::CheckVictory()
 {
@@ -399,6 +401,15 @@ GameState GameManager::CheckVictory()
 	}
 
 	return GameState::draw;
+}
+
+void GameManager::RestartGame()
+{
+	m_endGame = false;
+	m_renderLine = false;
+	m_grid->Clear();
+	m_currentPlayer = m_xPlayer;
+	GameManager::Get()->m_textTexture->LoadFromRenderedText(GameManager::Get()->GetCurrentPlayer().name + " Turn", GameManager::Get()->GetCurrentPlayer().color);
 }
 
 const std::string GameManager::GetGameState(const GameState& _gameState) const
