@@ -87,6 +87,7 @@ bool GameManager::Initialize()
 	m_oTexture = new Texture();
 	m_xTexture = new Texture();
 	m_textTexture = new Texture();
+	m_restartGameTexture = new Texture();
 
 	m_grid = new Grid();
 
@@ -106,6 +107,7 @@ void GameManager::Destroy()
 	delete m_oTexture;
 	delete m_xTexture;
 	delete m_textTexture;
+	delete m_restartGameTexture;
 	delete m_grid;
 
 	SDL_DestroyWindow(m_window);
@@ -129,31 +131,6 @@ const int GameManager::GetScreenHeight() const
 	return screenHeight;
 }
 
-Texture* GameManager::GetXTexture() const
-{
-	return m_xTexture;
-}
-
-Texture* GameManager::GetOTexture() const
-{
-	return m_oTexture;
-}
-
-Texture* GameManager::GetTextTexture() const
-{
-	return m_textTexture;
-}
-
-Grid* GameManager::GetGrid() const
-{
-	return m_grid;
-}
-
-Line GameManager::GetLine() const
-{
-	return m_line;
-}
-
 Player GameManager::GetCurrentPlayer() const
 {
 	return m_currentPlayer;
@@ -162,19 +139,23 @@ Player GameManager::GetCurrentPlayer() const
 void GameManager::PlayGame()
 {
 	LoadTextures();
-	GetTextTexture()->SetFont(TTF_OpenFont("Textures/Lovely_Kids.ttf", 64));
-	GetTextTexture()->LoadFromRenderedText("X Turn", GameManager::Get()->GetXPlayerColor());
+	m_textTexture->SetFont(TTF_OpenFont("Textures/Lovely_Kids.ttf", 64));
+	m_textTexture->LoadFromRenderedText("X Turn", m_xPlayerColor);
 
 	bool quit = false;
 	bool renderLine = false;
+	bool endGame = false;
 	//Event handler
 	SDL_Event e;
+	SDL_Cursor* cursor;
 
-	Grid* grid = GetGrid();
-	assert(grid != nullptr);
+	assert(m_grid != nullptr);
 
 	SDL_Renderer* renderer = GetRenderer();
 	assert(renderer != nullptr);
+
+	int restartGameX = GetScreenWidth() - 300;
+	int restartGameY = GetScreenHeight() - 100;
 
 	while (!quit)
 	{
@@ -188,12 +169,47 @@ void GameManager::PlayGame()
 				quit = true;
 			}
 
+			if (e.type == SDL_MOUSEMOTION)
+			{
+				int x = 0;
+				int y = 0;
+				SDL_GetMouseState(&x, &y);
+
+				if ((x < restartGameX + m_restartGameTexture->GetWidth() && x > restartGameX)
+					&& (y <restartGameY + m_restartGameTexture->GetHeight() && y >restartGameY))
+				{
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+					SDL_SetCursor(cursor);
+				}
+				else
+				{
+					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+					SDL_SetCursor(cursor);
+				}
+			}
+
 			if (e.type == SDL_MOUSEBUTTONDOWN)
 			{
 				int x = 0;
 				int y = 0;
 				SDL_GetMouseState(&x, &y);
-				grid->OnMouseClick(x, y);
+
+				if ((x < restartGameX + m_restartGameTexture->GetWidth() && x > restartGameX)
+					&& (y <restartGameY + m_restartGameTexture->GetHeight() && y >restartGameY))
+				{
+					endGame = false;
+					renderLine = false;
+					m_grid->Clear();
+					m_currentPlayer = m_xPlayer;
+					GameManager::Get()->m_textTexture->LoadFromRenderedText(GameManager::Get()->GetCurrentPlayer().name + " Turn", GameManager::Get()->GetCurrentPlayer().color);
+				}
+
+				if (endGame == false
+					&& (x < m_grid->GetMaxPosition().x && x > m_grid->GetMinPosition().x)
+					&& (y < m_grid->GetMaxPosition().y && y > m_grid->GetMinPosition().y))
+				{
+					m_grid->OnMouseClick(x, y);
+				}
 			}
 		}
 
@@ -201,63 +217,61 @@ void GameManager::PlayGame()
 		GameState gameState = CheckVictory();
 		if (gameState != GameState::inProgress)
 		{
-			GetTextTexture()->LoadFromRenderedText(GetGameState(gameState), GetMainColor());
+			m_textTexture->LoadFromRenderedText(GetGameState(gameState), m_mainColor);
 
 			if (gameState != GameState::draw)
 			{
 				renderLine = true;
 			}
-
-			//grid->Clear();
+			endGame = true;
 		}
 
 		//Rendering
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
 
-		GetTextTexture()->Render(100, GameManager::Get()->GetScreenHeight() - 100);
-		grid->Render();
+		m_textTexture->Render(100, GetScreenHeight() - 100);
+		m_restartGameTexture->Render(restartGameX, restartGameY);
+		m_grid->Render();
 
 		for (int i = 0; i < 3; i++)
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				Cell cell = grid->grid[i][j];
+				Cell cell = m_grid->grid[i][j];
 				if (cell.GetSymbol() == Symbol::o)
 				{
-					GetOTexture()->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
+					m_oTexture->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
 				}
 				else if (cell.GetSymbol() == Symbol::x)
 				{
-					GetXTexture()->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
+					m_xTexture->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
 				}
 			}
 		}
 
 		if (renderLine == true)
 		{
-			Line line = GetLine();
-			SDL_Color color = GetMainColor();
-			SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+			SDL_SetRenderDrawColor(renderer, m_mainColor.r, m_mainColor.g, m_mainColor.b, m_mainColor.a);
 
 			int offset = 25;
-			int x = line.start.x + offset;
-			int y = line.start.y + offset;
+			int x = m_line.start.x + offset;
+			int y = m_line.start.y + offset;
 			while (true)
 			{
 				SDL_Rect rect = { x, y , 25, 20 };
 				SDL_RenderFillRect(renderer, &rect);
-				if (x <= line.end.x + offset)
+				if (x <= m_line.end.x + offset)
 				{
 					++x;
 				}
 
-				if (y <= line.end.y + offset)
+				if (y <= m_line.end.y + offset)
 				{
 					++y;
 				}
 
-				if (x > line.end.x + offset && y > line.end.y + offset)
+				if (x > m_line.end.x + offset && y > m_line.end.y + offset)
 				{
 					break;
 				}
@@ -289,10 +303,13 @@ void GameManager::LoadTextures()
 
 	m_xTexture->LoadFromFile("Textures/x.JPG");
 	m_oTexture->LoadFromFile("Textures/o.JPG");
+	m_restartGameTexture->LoadFromFile("Textures/restart_game.JPG");
 }
 
 void GameManager::ChangeTurn()
 {
+	SwitchPlayer();
+	m_textTexture->LoadFromRenderedText(m_currentPlayer.name + " Turn", m_currentPlayer.color);
 }
 
 Player GameManager::GetPlayer(const Symbol _symbol)
@@ -398,19 +415,4 @@ const std::string GameManager::GetGameState(const GameState& _gameState) const
 		return "X Won";
 	}
 	return std::string();
-}
-
-const SDL_Color GameManager::GetXPlayerColor() const
-{
-	return m_xPlayerColor;
-}
-
-const SDL_Color GameManager::GetOPlayerColor() const
-{
-	return m_oPlayerColor;
-}
-
-const SDL_Color GameManager::GetMainColor() const
-{
-	return m_mainColor;
 }

@@ -45,28 +45,18 @@ public:
 	const int GetScreenWidth() const;
 	const int GetScreenHeight() const;
 
-	Texture* GetXTexture() const;
-	Texture* GetOTexture() const;
-	Texture* GetTextTexture() const;
-
-	Grid* GetGrid() const;
-
-	Line GetLine() const;
-
 	Player GetCurrentPlayer() const;
 
 	void PlayGame();
-	void SwitchPlayer();
-	void LoadTextures();
 	void ChangeTurn();
-	Player GetPlayer(const Symbol _symbol);
 	GameState CheckVictory();
 
 	const std::string GetGameState(const GameState& _gameState) const;
 
-	const SDL_Color GetXPlayerColor() const;
-	const SDL_Color GetOPlayerColor() const;
-	const SDL_Color GetMainColor() const;
+private:
+	void SwitchPlayer();
+	void LoadTextures();
+	Player GetPlayer(const Symbol _symbol);
 
 private:
 	static GameManager* s_instance;
@@ -80,6 +70,7 @@ private:
 	Texture* m_xTexture;
 	Texture* m_oTexture;
 	Texture* m_textTexture;
+	Texture* m_restartGameTexture;
 	Grid* m_grid;
 
 	Line m_line;

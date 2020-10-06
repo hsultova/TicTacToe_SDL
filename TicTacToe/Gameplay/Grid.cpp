@@ -28,19 +28,23 @@ void Grid::Render()
 	assert(renderer != nullptr);
 
 	SDL_SetRenderDrawColor(renderer, m_gridColor.r, m_gridColor.g, m_gridColor.b, m_gridColor.a);
-	int lineWidth = GameManager::Get()->GetScreenWidth() - 2 * m_cellSize;
+	m_lineWidth = GameManager::Get()->GetScreenWidth() - 2 * m_cellSize;
 
+	m_firstHorizontalLinePosition = Position{ m_cellSize ,  GameManager::Get()->GetScreenHeight() / 4 };
 	//Draw grid using rectangles
-	SDL_Rect firstHorizontalLine = { m_cellSize, GameManager::Get()->GetScreenHeight() / 4, lineWidth, m_borderThickness };
+	SDL_Rect firstHorizontalLine = { m_firstHorizontalLinePosition.x, m_firstHorizontalLinePosition.y, m_lineWidth, m_borderThickness };
 	SDL_RenderFillRect(renderer, &firstHorizontalLine);
 
-	SDL_Rect secondHorizontalLine = { m_cellSize, GameManager::Get()->GetScreenHeight() / 3 + m_cellSize, lineWidth, m_borderThickness };
+	m_secondHorizontalLinePosition = Position{ m_cellSize , GameManager::Get()->GetScreenHeight() / 3 + m_cellSize };
+	SDL_Rect secondHorizontalLine = { m_secondHorizontalLinePosition.x, m_secondHorizontalLinePosition.y, m_lineWidth, m_borderThickness };
 	SDL_RenderFillRect(renderer, &secondHorizontalLine);
 
-	SDL_Rect firstVerticallLine = { static_cast<int>(2.5 * m_cellSize), GameManager::Get()->GetScreenHeight() / m_cellSize, m_borderThickness, lineWidth - static_cast<int>(1.5 * m_cellSize) };
+	m_firstVerticalLinePosition = Position{ static_cast<int>(2.5 * m_cellSize) ,  GameManager::Get()->GetScreenHeight() / m_cellSize };
+	SDL_Rect firstVerticallLine = { m_firstVerticalLinePosition.x, m_firstVerticalLinePosition.y, m_borderThickness, m_lineWidth - static_cast<int>(1.5 * m_cellSize) };
 	SDL_RenderFillRect(renderer, &firstVerticallLine);
 
-	SDL_Rect secondVerticalLine = { static_cast<int>(4.5 * m_cellSize), GameManager::Get()->GetScreenHeight() / m_cellSize, m_borderThickness , lineWidth - static_cast<int>(1.5 * m_cellSize) };
+	m_secondVerticalLinePosition = Position{ static_cast<int>(4.5 * m_cellSize) ,  GameManager::Get()->GetScreenHeight() / m_cellSize };
+	SDL_Rect secondVerticalLine = { m_secondVerticalLinePosition.x, m_secondVerticalLinePosition.y, m_borderThickness , m_lineWidth - static_cast<int>(1.5 * m_cellSize) };
 	SDL_RenderFillRect(renderer, &secondVerticalLine);
 }
 
@@ -64,8 +68,7 @@ void Grid::OnMouseClick(int _x, int _y)
 	cell.SetSymbol(GameManager::Get()->GetCurrentPlayer().mark);
 	grid[x][y] = cell;
 
-	GameManager::Get()->SwitchPlayer();
-	GameManager::Get()->GetTextTexture()->LoadFromRenderedText(GameManager::Get()->GetCurrentPlayer().name + " Turn", GameManager::Get()->GetCurrentPlayer().color);
+	GameManager::Get()->ChangeTurn();
 }
 
 void Grid::Clear()
@@ -78,3 +81,14 @@ void Grid::Clear()
 		}
 	}
 }
+
+Position Grid::GetMinPosition()
+{
+	return Position{ m_firstHorizontalLinePosition.x, m_firstHorizontalLinePosition.y - m_cellSize};
+}
+
+Position Grid::GetMaxPosition()
+{
+	return Position{ m_secondHorizontalLinePosition.x  + m_lineWidth, m_secondHorizontalLinePosition.y + m_cellSize};
+}
+
