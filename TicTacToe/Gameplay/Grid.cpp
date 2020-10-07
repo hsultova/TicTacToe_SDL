@@ -15,7 +15,7 @@ Grid::Grid()
 		}
 	}
 
-	m_cellSize = GameManager::Get()->GetScreenWidth() / 7;
+	m_cellSize = GameManager::Get()->GetWindowWidth() / 7;
 }
 
 Grid::~Grid()
@@ -66,4 +66,9 @@ void Grid::Clear()
 			grid[i][j].SetSymbol(Symbol::e);
 		}
 	}
+}
+
+void Grid::UpdateCellSize()
+{
+	m_cellSize = GameManager::Get()->GetWindowWidth() / 7;
 }

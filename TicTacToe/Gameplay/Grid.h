@@ -14,6 +14,7 @@ public:
 
 	void OnMouseClick(int _x, int _y);
 	void Clear();
+	void UpdateCellSize();
 
 private:
 	int m_cellSize;

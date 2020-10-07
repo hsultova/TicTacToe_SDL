@@ -51,12 +51,14 @@ bool GameManager::Initialize()
 	}
 
 	//Create window
-	m_window = SDL_CreateWindow("Tic Tac Toe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
+	m_window = SDL_CreateWindow("Tic Tac Toe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_windowWidth, m_windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (m_window == NULL)
 	{
 		printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
 		return false;
 	}
+
+	SDL_SetWindowMinimumSize(m_window, 720, 480);
 
 	//Create vsynced renderer for window
 	m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -88,6 +90,7 @@ bool GameManager::Initialize()
 	m_xTexture = new Texture();
 	m_textTexture = new Texture();
 	m_restartGameTexture = new Texture();
+	m_restartGameButtonPosition = Position{ GetWindowWidth() - 300 , GetWindowHeight() - 100 };
 
 	m_grid = new Grid();
 
@@ -122,14 +125,14 @@ void GameManager::Destroy()
 	SDL_Quit();
 }
 
-const int GameManager::GetScreenWidth() const
+const int GameManager::GetWindowWidth() const
 {
-	return screenWidth;
+	return m_windowWidth;
 }
 
-const int GameManager::GetScreenHeight() const
+const int GameManager::GetWindowHeight() const
 {
-	return screenHeight;
+	return m_windowHeight;
 }
 
 Player GameManager::GetCurrentPlayer() const
@@ -155,9 +158,6 @@ void GameManager::PlayGame()
 	SDL_Renderer* renderer = GetRenderer();
 	assert(renderer != nullptr);
 
-	int restartGameX = GetScreenWidth() - 300;
-	int restartGameY = GetScreenHeight() - 100;
-
 	while (!quit)
 	{
 		//Input events
@@ -170,14 +170,21 @@ void GameManager::PlayGame()
 				quit = true;
 			}
 
+			if (e.type == SDL_WINDOWEVENT)
+			{
+				SDL_GetWindowSize(m_window, &m_windowWidth, &m_windowHeight);
+				m_grid->UpdateCellSize();
+				UpdateButtons();
+			}
+
 			if (e.type == SDL_MOUSEMOTION)
 			{
 				int x = 0;
 				int y = 0;
 				SDL_GetMouseState(&x, &y);
 
-				if ((x < restartGameX + m_restartGameTexture->GetWidth() && x > restartGameX)
-					&& (y <restartGameY + m_restartGameTexture->GetHeight() && y >restartGameY))
+				if ((x < m_restartGameButtonPosition.x + m_restartGameTexture->GetWidth() && x > m_restartGameButtonPosition.x)
+					&& (y <m_restartGameButtonPosition.y + m_restartGameTexture->GetHeight() && y >m_restartGameButtonPosition.y))
 				{
 					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
 					SDL_SetCursor(cursor);
@@ -195,9 +202,9 @@ void GameManager::PlayGame()
 				int y = 0;
 				SDL_GetMouseState(&x, &y);
 
-				if (CheckBounds(Position{ x,y }, 
-					Position{ restartGameX, restartGameY }, 
-					Position{ restartGameX + m_restartGameTexture->GetWidth() ,restartGameY + m_restartGameTexture->GetHeight() }))
+				if (CheckBounds(Position{ x,y },
+					m_restartGameButtonPosition,
+					Position{ m_restartGameButtonPosition.x + m_restartGameTexture->GetWidth() ,m_restartGameButtonPosition.y + m_restartGameTexture->GetHeight() }))
 				{
 					RestartGame();
 				}
@@ -226,8 +233,8 @@ void GameManager::PlayGame()
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
 
-		m_textTexture->Render(100, GetScreenHeight() - 100);
-		m_restartGameTexture->Render(restartGameX, restartGameY);
+		m_textTexture->Render(100, GetWindowHeight() - 100);
+		m_restartGameTexture->Render(m_restartGameButtonPosition.x, m_restartGameButtonPosition.y);
 		RenderGrid();
 
 		for (int i = 0; i < 3; i++)
@@ -285,23 +292,23 @@ void GameManager::RenderGrid()
 	//TODO Draw grid based on cells?
 
 	SDL_SetRenderDrawColor(m_renderer, m_gridColor.r, m_gridColor.g, m_gridColor.b, m_gridColor.a);
-	m_lineWidth = GameManager::Get()->GetScreenWidth() - 2 * m_grid->GetCellSize();
+	m_lineWidth = GameManager::Get()->GetWindowWidth() - 2 * m_grid->GetCellSize();
 
-	m_firstHorizontalLinePosition = Position{ m_grid->GetCellSize() ,  GameManager::Get()->GetScreenHeight() / 4 };
+	m_firstHorizontalLinePosition = Position{ m_grid->GetCellSize() ,  GameManager::Get()->GetWindowHeight() / 4 };
 	//Draw grid using rectangles
 	SDL_Rect firstHorizontalLine = { m_firstHorizontalLinePosition.x, m_firstHorizontalLinePosition.y, m_lineWidth, m_grid->GetBorderThickness() };
 
 	SDL_RenderFillRect(m_renderer, &firstHorizontalLine);
 
-	m_secondHorizontalLinePosition = Position{ m_grid->GetCellSize() , GameManager::Get()->GetScreenHeight() / 3 + m_grid->GetCellSize() };
+	m_secondHorizontalLinePosition = Position{ m_grid->GetCellSize() , GameManager::Get()->GetWindowHeight() / 3 + m_grid->GetCellSize() };
 	SDL_Rect secondHorizontalLine = { m_secondHorizontalLinePosition.x, m_secondHorizontalLinePosition.y, m_lineWidth, m_grid->GetBorderThickness() };
 	SDL_RenderFillRect(m_renderer, &secondHorizontalLine);
 
-	m_firstVerticalLinePosition = Position{ static_cast<int>(2.5 * m_grid->GetCellSize()) ,  GameManager::Get()->GetScreenHeight() / m_grid->GetCellSize() };
+	m_firstVerticalLinePosition = Position{ static_cast<int>(2.5 * m_grid->GetCellSize()) ,  GameManager::Get()->GetWindowHeight() / m_grid->GetCellSize() };
 	SDL_Rect firstVerticallLine = { m_firstVerticalLinePosition.x, m_firstVerticalLinePosition.y, m_grid->GetBorderThickness(), m_lineWidth - static_cast<int>(1.5 * m_grid->GetCellSize()) };
 	SDL_RenderFillRect(m_renderer, &firstVerticallLine);
 
-	m_secondVerticalLinePosition = Position{ static_cast<int>(4.5 * m_grid->GetCellSize()) ,  GameManager::Get()->GetScreenHeight() / m_grid->GetCellSize() };
+	m_secondVerticalLinePosition = Position{ static_cast<int>(4.5 * m_grid->GetCellSize()) ,  GameManager::Get()->GetWindowHeight() / m_grid->GetCellSize() };
 	SDL_Rect secondVerticalLine = { m_secondVerticalLinePosition.x, m_secondVerticalLinePosition.y, m_grid->GetBorderThickness() , m_lineWidth - static_cast<int>(1.5 * m_grid->GetCellSize()) };
 	SDL_RenderFillRect(m_renderer, &secondVerticalLine);
 }
@@ -354,6 +361,11 @@ Position GameManager::GetGridMinPosition()
 Position GameManager::GetGridMaxPosition()
 {
 	return Position{ m_secondHorizontalLinePosition.x + m_lineWidth, m_secondHorizontalLinePosition.y + m_grid->GetCellSize() };
+}
+
+void GameManager::UpdateButtons()
+{
+	m_restartGameButtonPosition = Position{ GetWindowWidth() - 300 ,GetWindowHeight() - 100 };
 }
 
 bool GameManager::CheckBounds(const Position& _position, const Position& _minPosition, const Position& _maxPosition)

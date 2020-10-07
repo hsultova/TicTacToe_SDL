@@ -42,8 +42,8 @@ public:
 	bool Initialize();
 	void Destroy();
 
-	const int GetScreenWidth() const;
-	const int GetScreenHeight() const;
+	const int GetWindowWidth() const;
+	const int GetWindowHeight() const;
 
 	Player GetCurrentPlayer() const;
 
@@ -62,12 +62,13 @@ private:
 	Player GetPlayer(const Symbol _symbol);
 	Position GetGridMinPosition();
 	Position GetGridMaxPosition();
+	void UpdateButtons();
 
 private:
 	static GameManager* s_instance;
 
-	const int screenWidth = 1080;
-	const int screenHeight = 720;
+	int m_windowWidth = 720;
+	int m_windowHeight = 480;
 
 	SDL_Window* m_window = nullptr;
 	SDL_Renderer* m_renderer = nullptr;
@@ -77,6 +78,8 @@ private:
 	Texture* m_textTexture;
 	Texture* m_restartGameTexture;
 	Grid* m_grid;
+
+	Position m_restartGameButtonPosition;
 
 	Position m_firstHorizontalLinePosition;
 	Position m_secondHorizontalLinePosition;
