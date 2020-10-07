@@ -331,7 +331,7 @@ GameState GameManager::CheckVictory()
 	bool hasWinner = false;
 	Player winner;
 
-	for (int i = 1; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		if (m_grid->grid[i][0].GetSymbol() != Symbol::e
 			&& m_grid->grid[i][0].GetSymbol() == m_grid->grid[i][1].GetSymbol()
@@ -344,7 +344,7 @@ GameState GameManager::CheckVictory()
 		}
 	}
 
-	for (int i = 1; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		if (m_grid->grid[0][i].GetSymbol() != Symbol::e
 			&& m_grid->grid[0][i].GetSymbol() == m_grid->grid[1][i].GetSymbol()
