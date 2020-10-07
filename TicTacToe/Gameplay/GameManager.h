@@ -48,6 +48,7 @@ public:
 	Player GetCurrentPlayer() const;
 
 	void PlayGame();
+	void RenderGrid();
 	void ChangeTurn();
 	GameState CheckVictory();
 	void RestartGame();
@@ -59,12 +60,14 @@ private:
 	void SwitchPlayer();
 	void LoadTextures();
 	Player GetPlayer(const Symbol _symbol);
+	Position GetGridMinPosition();
+	Position GetGridMaxPosition();
 
 private:
 	static GameManager* s_instance;
 
-	const int screenWidth = 720;
-	const int screenHeight = 480;
+	const int screenWidth = 1080;
+	const int screenHeight = 720;
 
 	SDL_Window* m_window = nullptr;
 	SDL_Renderer* m_renderer = nullptr;
@@ -75,6 +78,12 @@ private:
 	Texture* m_restartGameTexture;
 	Grid* m_grid;
 
+	Position m_firstHorizontalLinePosition;
+	Position m_secondHorizontalLinePosition;
+	Position m_firstVerticalLinePosition;
+	Position m_secondVerticalLinePosition;
+	int m_lineWidth;
+
 	Line m_line;
 
 	Player m_currentPlayer;
@@ -84,6 +93,7 @@ private:
 	SDL_Color m_xPlayerColor;
 	SDL_Color m_oPlayerColor;
 	SDL_Color m_mainColor;
+	SDL_Color m_gridColor;
 
 	bool m_renderLine = false;
 	bool m_endGame = false;

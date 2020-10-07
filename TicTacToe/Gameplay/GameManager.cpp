@@ -94,6 +94,7 @@ bool GameManager::Initialize()
 	m_oPlayerColor = SDL_Color{ 157, 7, 8, 255 };
 	m_xPlayerColor = SDL_Color{ 11, 113, 100, 255 };
 	m_mainColor = SDL_Color{ 0, 48, 119, 255 };
+	m_gridColor = SDL_Color{ 0, 0, 139, 255 };
 
 	m_oPlayer = Player{ "O", Symbol::o, m_oPlayerColor };
 	m_xPlayer = Player{ "X", Symbol::x, m_xPlayerColor };
@@ -201,7 +202,7 @@ void GameManager::PlayGame()
 					RestartGame();
 				}
 
-				if (m_endGame == false && CheckBounds(Position{ x,y }, m_grid->GetMinPosition(), m_grid->GetMaxPosition()))
+				if (m_endGame == false && CheckBounds(Position{ x,y }, GetGridMinPosition(), GetGridMaxPosition()))
 				{
 					m_grid->OnMouseClick(x, y);
 				}
@@ -227,7 +228,7 @@ void GameManager::PlayGame()
 
 		m_textTexture->Render(100, GetScreenHeight() - 100);
 		m_restartGameTexture->Render(restartGameX, restartGameY);
-		m_grid->Render();
+		RenderGrid();
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -279,6 +280,32 @@ void GameManager::PlayGame()
 	}
 }
 
+void GameManager::RenderGrid()
+{
+	//TODO Draw grid based on cells?
+
+	SDL_SetRenderDrawColor(m_renderer, m_gridColor.r, m_gridColor.g, m_gridColor.b, m_gridColor.a);
+	m_lineWidth = GameManager::Get()->GetScreenWidth() - 2 * m_grid->GetCellSize();
+
+	m_firstHorizontalLinePosition = Position{ m_grid->GetCellSize() ,  GameManager::Get()->GetScreenHeight() / 4 };
+	//Draw grid using rectangles
+	SDL_Rect firstHorizontalLine = { m_firstHorizontalLinePosition.x, m_firstHorizontalLinePosition.y, m_lineWidth, m_grid->GetBorderThickness() };
+
+	SDL_RenderFillRect(m_renderer, &firstHorizontalLine);
+
+	m_secondHorizontalLinePosition = Position{ m_grid->GetCellSize() , GameManager::Get()->GetScreenHeight() / 3 + m_grid->GetCellSize() };
+	SDL_Rect secondHorizontalLine = { m_secondHorizontalLinePosition.x, m_secondHorizontalLinePosition.y, m_lineWidth, m_grid->GetBorderThickness() };
+	SDL_RenderFillRect(m_renderer, &secondHorizontalLine);
+
+	m_firstVerticalLinePosition = Position{ static_cast<int>(2.5 * m_grid->GetCellSize()) ,  GameManager::Get()->GetScreenHeight() / m_grid->GetCellSize() };
+	SDL_Rect firstVerticallLine = { m_firstVerticalLinePosition.x, m_firstVerticalLinePosition.y, m_grid->GetBorderThickness(), m_lineWidth - static_cast<int>(1.5 * m_grid->GetCellSize()) };
+	SDL_RenderFillRect(m_renderer, &firstVerticallLine);
+
+	m_secondVerticalLinePosition = Position{ static_cast<int>(4.5 * m_grid->GetCellSize()) ,  GameManager::Get()->GetScreenHeight() / m_grid->GetCellSize() };
+	SDL_Rect secondVerticalLine = { m_secondVerticalLinePosition.x, m_secondVerticalLinePosition.y, m_grid->GetBorderThickness() , m_lineWidth - static_cast<int>(1.5 * m_grid->GetCellSize()) };
+	SDL_RenderFillRect(m_renderer, &secondVerticalLine);
+}
+
 void GameManager::SwitchPlayer()
 {
 	if (m_currentPlayer.mark == Symbol::x)
@@ -317,6 +344,16 @@ Player GameManager::GetPlayer(const Symbol _symbol)
 	{
 		return m_oPlayer;
 	}
+}
+
+Position GameManager::GetGridMinPosition()
+{
+	return Position{ m_firstHorizontalLinePosition.x, m_firstHorizontalLinePosition.y - m_grid->GetCellSize() };
+}
+
+Position GameManager::GetGridMaxPosition()
+{
+	return Position{ m_secondHorizontalLinePosition.x + m_lineWidth, m_secondHorizontalLinePosition.y + m_grid->GetCellSize() };
 }
 
 bool GameManager::CheckBounds(const Position& _position, const Position& _minPosition, const Position& _maxPosition)
