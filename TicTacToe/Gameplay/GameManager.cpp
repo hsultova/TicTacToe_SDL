@@ -377,19 +377,22 @@ bool GameManager::CheckBounds(const Position& _position, const Position& _minPos
 
 GameState GameManager::CheckVictory()
 {
-	bool hasWinner = false;
-	Player winner;
-
 	for (int i = 0; i < 3; i++)
 	{
 		if (m_grid->grid[i][0].GetSymbol() != Symbol::e
 			&& m_grid->grid[i][0].GetSymbol() == m_grid->grid[i][1].GetSymbol()
 			&& m_grid->grid[i][1].GetSymbol() == m_grid->grid[i][2].GetSymbol())
 		{
-			winner = GetPlayer(m_grid->grid[i][0].GetSymbol());
 			m_line.start = m_grid->grid[i][0].GetGlobalPosition();
 			m_line.end = m_grid->grid[i][2].GetGlobalPosition();
-			hasWinner = true;
+			if (m_grid->grid[i][0].GetSymbol() == Symbol::x)
+			{
+				return GameState::xWon;
+			}
+			else
+			{
+				return GameState::oWon;
+			}
 		}
 	}
 
@@ -399,10 +402,16 @@ GameState GameManager::CheckVictory()
 			&& m_grid->grid[0][i].GetSymbol() == m_grid->grid[1][i].GetSymbol()
 			&& m_grid->grid[1][i].GetSymbol() == m_grid->grid[2][i].GetSymbol())
 		{
-			winner = GetPlayer(m_grid->grid[0][i].GetSymbol());
 			m_line.start = m_grid->grid[0][i].GetGlobalPosition();
 			m_line.end = m_grid->grid[2][i].GetGlobalPosition();
-			hasWinner = true;
+			if (m_grid->grid[0][i].GetSymbol() == Symbol::x)
+			{
+				return GameState::xWon;
+			}
+			else
+			{
+				return GameState::oWon;
+			}
 		}
 	}
 
@@ -410,25 +419,25 @@ GameState GameManager::CheckVictory()
 		&& m_grid->grid[0][0].GetSymbol() == m_grid->grid[1][1].GetSymbol()
 		&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][2].GetSymbol())
 	{
-		winner = GetPlayer(m_grid->grid[0][0].GetSymbol());
 		m_line.start = m_grid->grid[0][0].GetGlobalPosition();
 		m_line.end = m_grid->grid[2][2].GetGlobalPosition();
-		hasWinner = true;
+		if (m_grid->grid[0][0].GetSymbol() == Symbol::x)
+		{
+			return GameState::xWon;
+		}
+		else
+		{
+			return GameState::oWon;
+		}
 	}
 
 	if (m_grid->grid[0][2].GetSymbol() != Symbol::e
 		&& m_grid->grid[0][2].GetSymbol() == m_grid->grid[1][1].GetSymbol()
 		&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][0].GetSymbol())
 	{
-		winner = GetPlayer(m_grid->grid[0][2].GetSymbol());
 		m_line.start = m_grid->grid[0][2].GetGlobalPosition();
 		m_line.end = m_grid->grid[2][0].GetGlobalPosition();
-		hasWinner = true;
-	}
-
-	if (hasWinner)
-	{
-		if (winner.mark == Symbol::x)
+		if (m_grid->grid[0][2].GetSymbol() == Symbol::x)
 		{
 			return GameState::xWon;
 		}
