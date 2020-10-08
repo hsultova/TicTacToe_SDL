@@ -1,7 +1,5 @@
 #include "Grid.h"
 
-#include <assert.h> 
-
 #include "GameManager.h"
 
 Grid::Grid()
@@ -48,7 +46,10 @@ void Grid::OnMouseClick(int _x, int _y)
 
 	Cell cell = grid[x][y];
 	cell.SetLocalPosition(Position{ x, y });
-	cell.SetGlobalPosition(Position{ m_cellSize + x * 2 * m_cellSize, m_cellSize / 5 + y * (m_cellSize + m_cellSize / 4) });
+	cell.SetGlobalPosition(Position{ 
+		m_cellSize + x * 2 * m_cellSize, 
+		m_cellSize / 5 + y * (m_cellSize + m_cellSize / 4) });
+
 	if (cell.GetSymbol() == Symbol::e)
 	{
 		cell.SetSymbol(GameManager::Get()->GetCurrentPlayer().mark);

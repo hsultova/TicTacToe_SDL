@@ -3,8 +3,9 @@
 #include <SDL.h>
 
 #include <string>
+#include <assert.h> 
 
-#include "..\Core\Texture.h"
+#include "Texture.h"
 #include "Grid.h"
 
 struct Player
@@ -48,6 +49,8 @@ public:
 	Player GetCurrentPlayer() const;
 
 	void PlayGame();
+	void RenderLine();
+	void RenderGridCells();
 	void RenderGrid();
 	void ChangeTurn();
 	GameState CheckVictory();
@@ -57,11 +60,12 @@ public:
 	const std::string GetGameState(const GameState& _gameState) const;
 
 private:
-	void SwitchPlayer();
-	void LoadTextures();
 	Player GetPlayer(const Symbol _symbol);
 	Position GetGridMinPosition();
 	Position GetGridMaxPosition();
+
+	void SwitchPlayer();
+	void LoadTextures();
 	void UpdateButtons();
 
 private:
@@ -98,7 +102,7 @@ private:
 	SDL_Color m_mainColor;
 	SDL_Color m_gridColor;
 
-	bool m_renderLine = false;
+	bool m_hasWinner = false;
 	bool m_endGame = false;
 };
 

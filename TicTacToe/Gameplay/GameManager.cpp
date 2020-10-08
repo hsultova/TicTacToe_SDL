@@ -4,7 +4,6 @@
 #include <SDL_ttf.h>
 
 #include <stdio.h>
-#include <assert.h> 
 
 GameManager* GameManager::s_instance = nullptr;
 
@@ -51,8 +50,14 @@ bool GameManager::Initialize()
 	}
 
 	//Create window
-	m_window = SDL_CreateWindow("Tic Tac Toe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_windowWidth, m_windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-	if (m_window == NULL)
+	m_window = SDL_CreateWindow("Tic Tac Toe",
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		m_windowWidth,
+		m_windowHeight,
+		SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+
+	if (m_window == nullptr)
 	{
 		printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
 		return false;
@@ -62,7 +67,7 @@ bool GameManager::Initialize()
 
 	//Create vsynced renderer for window
 	m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (m_renderer == NULL)
+	if (m_renderer == nullptr)
 	{
 		printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
 		return false;
@@ -85,7 +90,6 @@ bool GameManager::Initialize()
 	}
 
 	//Initialize class members
-
 	m_oTexture = new Texture();
 	m_xTexture = new Texture();
 	m_textTexture = new Texture();
@@ -147,16 +151,13 @@ void GameManager::PlayGame()
 	m_textTexture->LoadFromRenderedText("X Turn", m_xPlayerColor);
 
 	bool quit = false;
-	m_renderLine = false;
+	m_hasWinner = false;
 	m_endGame = false;
 	//Event handler
 	SDL_Event e;
 	SDL_Cursor* cursor;
 
 	assert(m_grid != nullptr);
-
-	SDL_Renderer* renderer = GetRenderer();
-	assert(renderer != nullptr);
 
 	while (!quit)
 	{
@@ -183,17 +184,19 @@ void GameManager::PlayGame()
 				int y = 0;
 				SDL_GetMouseState(&x, &y);
 
-				if ((x < m_restartGameButtonPosition.x + m_restartGameTexture->GetWidth() && x > m_restartGameButtonPosition.x)
-					&& (y <m_restartGameButtonPosition.y + m_restartGameTexture->GetHeight() && y >m_restartGameButtonPosition.y))
+				if (CheckBounds(
+					Position{ x, y },
+					m_restartGameButtonPosition,
+					Position{ m_restartGameButtonPosition.x + m_restartGameTexture->GetWidth(), m_restartGameButtonPosition.y + m_restartGameTexture->GetHeight() }))
 				{
 					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
-					SDL_SetCursor(cursor);
 				}
 				else
 				{
 					cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-					SDL_SetCursor(cursor);
 				}
+
+				SDL_SetCursor(cursor);
 			}
 
 			if (e.type == SDL_MOUSEBUTTONDOWN)
@@ -202,14 +205,14 @@ void GameManager::PlayGame()
 				int y = 0;
 				SDL_GetMouseState(&x, &y);
 
-				if (CheckBounds(Position{ x,y },
+				if (CheckBounds(Position{ x, y },
 					m_restartGameButtonPosition,
-					Position{ m_restartGameButtonPosition.x + m_restartGameTexture->GetWidth() ,m_restartGameButtonPosition.y + m_restartGameTexture->GetHeight() }))
+					Position{ m_restartGameButtonPosition.x + m_restartGameTexture->GetWidth(), m_restartGameButtonPosition.y + m_restartGameTexture->GetHeight() }))
 				{
 					RestartGame();
 				}
 
-				if (m_endGame == false && CheckBounds(Position{ x,y }, GetGridMinPosition(), GetGridMaxPosition()))
+				if (m_endGame == false && CheckBounds(Position{ x, y }, GetGridMinPosition(), GetGridMaxPosition()))
 				{
 					m_grid->OnMouseClick(x, y);
 				}
@@ -224,66 +227,74 @@ void GameManager::PlayGame()
 
 			if (gameState != GameState::draw)
 			{
-				m_renderLine = true;
+				m_hasWinner = true;
 			}
 			m_endGame = true;
 		}
 
 		//Rendering
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-		SDL_RenderClear(renderer);
+		SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
+		SDL_RenderClear(m_renderer);
 
 		m_textTexture->Render(100, GetWindowHeight() - 100);
 		m_restartGameTexture->Render(m_restartGameButtonPosition.x, m_restartGameButtonPosition.y);
+
 		RenderGrid();
+		RenderGridCells();
 
-		for (int i = 0; i < 3; i++)
+		if (m_hasWinner == true)
 		{
-			for (int j = 0; j < 3; j++)
-			{
-				Cell cell = m_grid->grid[i][j];
-				if (cell.GetSymbol() == Symbol::o)
-				{
-					m_oTexture->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
-				}
-				else if (cell.GetSymbol() == Symbol::x)
-				{
-					m_xTexture->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
-				}
-			}
+			RenderLine();
 		}
 
-		if (m_renderLine == true)
+		SDL_RenderPresent(m_renderer);
+	}
+}
+
+void GameManager::RenderLine()
+{
+	SDL_SetRenderDrawColor(m_renderer, m_mainColor.r, m_mainColor.g, m_mainColor.b, m_mainColor.a);
+
+	int offset = 25;
+	int x = m_line.start.x + offset;
+	int y = m_line.start.y + offset;
+	while (true)
+	{
+		SDL_Rect rect = { x, y , 25, 20 };
+		SDL_RenderFillRect(m_renderer, &rect);
+		if (x <= m_line.end.x + offset)
 		{
-			SDL_SetRenderDrawColor(renderer, m_mainColor.r, m_mainColor.g, m_mainColor.b, m_mainColor.a);
-
-			int offset = 25;
-			int x = m_line.start.x + offset;
-			int y = m_line.start.y + offset;
-			while (true)
-			{
-				SDL_Rect rect = { x, y , 25, 20 };
-				SDL_RenderFillRect(renderer, &rect);
-				if (x <= m_line.end.x + offset)
-				{
-					++x;
-				}
-
-				if (y <= m_line.end.y + offset)
-				{
-					++y;
-				}
-
-				if (x > m_line.end.x + offset && y > m_line.end.y + offset)
-				{
-					break;
-				}
-			}
-
-			//SDL_RenderDrawLine(renderer, line.start.x, line.start.y, line.end.x, line.end.y);
+			++x;
 		}
 
-		SDL_RenderPresent(renderer);
+		if (y <= m_line.end.y + offset)
+		{
+			++y;
+		}
+
+		if (x > m_line.end.x + offset && y > m_line.end.y + offset)
+		{
+			break;
+		}
+	}
+}
+
+void GameManager::RenderGridCells()
+{
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			Cell cell = m_grid->grid[i][j];
+			if (cell.GetSymbol() == Symbol::o)
+			{
+				m_oTexture->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
+			}
+			else if (cell.GetSymbol() == Symbol::x)
+			{
+				m_xTexture->Render(cell.GetGlobalPosition().x, cell.GetGlobalPosition().y);
+			}
+		}
 	}
 }
 
@@ -292,24 +303,49 @@ void GameManager::RenderGrid()
 	//TODO Draw grid based on cells?
 
 	SDL_SetRenderDrawColor(m_renderer, m_gridColor.r, m_gridColor.g, m_gridColor.b, m_gridColor.a);
-	m_lineWidth = GameManager::Get()->GetWindowWidth() - 2 * m_grid->GetCellSize();
+	m_lineWidth = m_windowWidth - 2 * m_grid->GetCellSize();
 
-	m_firstHorizontalLinePosition = Position{ m_grid->GetCellSize() ,  GameManager::Get()->GetWindowHeight() / 4 };
+	m_firstHorizontalLinePosition = Position{ m_grid->GetCellSize() ,  m_windowHeight / 4 };
 	//Draw grid using rectangles
-	SDL_Rect firstHorizontalLine = { m_firstHorizontalLinePosition.x, m_firstHorizontalLinePosition.y, m_lineWidth, m_grid->GetBorderThickness() };
+	SDL_Rect firstHorizontalLine = { 
+		m_firstHorizontalLinePosition.x, 
+		m_firstHorizontalLinePosition.y,
+		m_lineWidth,
+		m_grid->GetBorderThickness() };
 
 	SDL_RenderFillRect(m_renderer, &firstHorizontalLine);
 
-	m_secondHorizontalLinePosition = Position{ m_grid->GetCellSize() , GameManager::Get()->GetWindowHeight() / 3 + m_grid->GetCellSize() };
-	SDL_Rect secondHorizontalLine = { m_secondHorizontalLinePosition.x, m_secondHorizontalLinePosition.y, m_lineWidth, m_grid->GetBorderThickness() };
+	m_secondHorizontalLinePosition = Position{ 
+		m_grid->GetCellSize() , 
+		m_windowHeight / 3 + m_grid->GetCellSize() };
+
+	SDL_Rect secondHorizontalLine = {
+		m_secondHorizontalLinePosition.x, 
+		m_secondHorizontalLinePosition.y, 
+		m_lineWidth,
+		m_grid->GetBorderThickness() };
 	SDL_RenderFillRect(m_renderer, &secondHorizontalLine);
 
-	m_firstVerticalLinePosition = Position{ static_cast<int>(2.5 * m_grid->GetCellSize()) ,  GameManager::Get()->GetWindowHeight() / m_grid->GetCellSize() };
-	SDL_Rect firstVerticallLine = { m_firstVerticalLinePosition.x, m_firstVerticalLinePosition.y, m_grid->GetBorderThickness(), m_lineWidth - static_cast<int>(1.5 * m_grid->GetCellSize()) };
+	m_firstVerticalLinePosition = Position{
+		static_cast<int>(2.5 * m_grid->GetCellSize()) , 
+		m_windowHeight/ m_grid->GetCellSize() };
+
+	SDL_Rect firstVerticallLine = {
+		m_firstVerticalLinePosition.x,
+		m_firstVerticalLinePosition.y, 
+		m_grid->GetBorderThickness(),
+		m_lineWidth - static_cast<int>(1.5 * m_grid->GetCellSize()) };
 	SDL_RenderFillRect(m_renderer, &firstVerticallLine);
 
-	m_secondVerticalLinePosition = Position{ static_cast<int>(4.5 * m_grid->GetCellSize()) ,  GameManager::Get()->GetWindowHeight() / m_grid->GetCellSize() };
-	SDL_Rect secondVerticalLine = { m_secondVerticalLinePosition.x, m_secondVerticalLinePosition.y, m_grid->GetBorderThickness() , m_lineWidth - static_cast<int>(1.5 * m_grid->GetCellSize()) };
+	m_secondVerticalLinePosition = Position{
+		static_cast<int>(4.5 * m_grid->GetCellSize()) , 
+		m_windowHeight / m_grid->GetCellSize() };
+
+	SDL_Rect secondVerticalLine = { 
+		m_secondVerticalLinePosition.x,
+		m_secondVerticalLinePosition.y, 
+		m_grid->GetBorderThickness() , 
+		m_lineWidth - static_cast<int>(1.5 * m_grid->GetCellSize()) };
 	SDL_RenderFillRect(m_renderer, &secondVerticalLine);
 }
 
@@ -355,12 +391,16 @@ Player GameManager::GetPlayer(const Symbol _symbol)
 
 Position GameManager::GetGridMinPosition()
 {
-	return Position{ m_firstHorizontalLinePosition.x, m_firstHorizontalLinePosition.y - m_grid->GetCellSize() };
+	return Position{
+		m_firstHorizontalLinePosition.x,
+		m_firstHorizontalLinePosition.y - m_grid->GetCellSize() };
 }
 
 Position GameManager::GetGridMaxPosition()
 {
-	return Position{ m_secondHorizontalLinePosition.x + m_lineWidth, m_secondHorizontalLinePosition.y + m_grid->GetCellSize() };
+	return Position{
+		m_secondHorizontalLinePosition.x + m_lineWidth, 
+		m_secondHorizontalLinePosition.y + m_grid->GetCellSize() };
 }
 
 void GameManager::UpdateButtons()
@@ -373,7 +413,6 @@ bool GameManager::CheckBounds(const Position& _position, const Position& _minPos
 	return (_position.x < _maxPosition.x&& _position.x > _minPosition.x)
 		&& (_position.y < _maxPosition.y&& _position.y > _minPosition.y);
 }
-
 
 GameState GameManager::CheckVictory()
 {
@@ -464,10 +503,10 @@ GameState GameManager::CheckVictory()
 void GameManager::RestartGame()
 {
 	m_endGame = false;
-	m_renderLine = false;
+	m_hasWinner = false;
 	m_grid->Clear();
 	m_currentPlayer = m_xPlayer;
-	GameManager::Get()->m_textTexture->LoadFromRenderedText(GameManager::Get()->GetCurrentPlayer().name + " Turn", GameManager::Get()->GetCurrentPlayer().color);
+	m_textTexture->LoadFromRenderedText(m_currentPlayer.name + " Turn", m_currentPlayer.color);
 }
 
 const std::string GameManager::GetGameState(const GameState& _gameState) const
@@ -483,5 +522,6 @@ const std::string GameManager::GetGameState(const GameState& _gameState) const
 	case GameState::xWon:
 		return "X Won";
 	}
+
 	return std::string();
 }

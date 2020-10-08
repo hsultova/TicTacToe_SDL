@@ -2,9 +2,7 @@
 
 #include <SDL_image.h>
 
-#include <assert.h> 
-
-#include "../Gameplay/GameManager.h"
+#include "GameManager.h"
 
 Texture::Texture()
 {
