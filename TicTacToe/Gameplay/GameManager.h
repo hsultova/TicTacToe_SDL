@@ -18,6 +18,7 @@ struct Player
 struct Line
 {
 	Position start;
+	Position middle;
 	Position end;
 };
 
@@ -49,6 +50,7 @@ public:
 	Player GetCurrentPlayer() const;
 
 	void PlayGame();
+	void RenderColorTexture();
 	void RenderLine();
 	void RenderGridCells();
 	void RenderGrid();
@@ -79,6 +81,8 @@ private:
 
 	Texture* m_xTexture;
 	Texture* m_oTexture;
+	Texture* m_xColorTexture;
+	Texture* m_oColorTexture;
 	Texture* m_textTexture;
 	Texture* m_restartGameTexture;
 	Grid* m_grid;

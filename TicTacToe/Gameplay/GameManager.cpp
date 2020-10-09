@@ -92,6 +92,8 @@ bool GameManager::Initialize()
 	//Initialize class members
 	m_oTexture = new Texture();
 	m_xTexture = new Texture();
+	m_oColorTexture = new Texture();
+	m_xColorTexture = new Texture();
 	m_textTexture = new Texture();
 	m_restartGameTexture = new Texture();
 	m_restartGameButtonPosition = Position{ GetWindowWidth() - 300 , GetWindowHeight() - 100 };
@@ -114,6 +116,8 @@ void GameManager::Destroy()
 {
 	delete m_oTexture;
 	delete m_xTexture;
+	delete m_oColorTexture;
+	delete m_xColorTexture;
 	delete m_textTexture;
 	delete m_restartGameTexture;
 	delete m_grid;
@@ -244,10 +248,27 @@ void GameManager::PlayGame()
 
 		if (m_hasWinner == true)
 		{
-			RenderLine();
+			//RenderLine();
+			RenderColorTexture();
 		}
 
 		SDL_RenderPresent(m_renderer);
+	}
+}
+
+void GameManager::RenderColorTexture()
+{
+	if (m_currentPlayer.mark == Symbol::o)
+	{
+		m_xColorTexture->Render(m_line.start.x, m_line.start.y);
+		m_xColorTexture->Render(m_line.middle.x, m_line.middle.y);
+		m_xColorTexture->Render(m_line.end.x, m_line.end.y);
+	}
+	else
+	{
+		m_oColorTexture->Render(m_line.start.x, m_line.start.y);
+		m_oColorTexture->Render(m_line.middle.x, m_line.middle.y);
+		m_oColorTexture->Render(m_line.end.x, m_line.end.y);
 	}
 }
 
@@ -368,6 +389,8 @@ void GameManager::LoadTextures()
 
 	m_xTexture->LoadFromFile("Textures/x.JPG");
 	m_oTexture->LoadFromFile("Textures/o.JPG");
+	m_xColorTexture->LoadFromFile("Textures/x_color.JPG");
+	m_oColorTexture->LoadFromFile("Textures/o_color.JPG");
 	m_restartGameTexture->LoadFromFile("Textures/restart_game.JPG");
 }
 
@@ -422,8 +445,7 @@ GameState GameManager::CheckVictory()
 			&& m_grid->grid[i][0].GetSymbol() == m_grid->grid[i][1].GetSymbol()
 			&& m_grid->grid[i][1].GetSymbol() == m_grid->grid[i][2].GetSymbol())
 		{
-			m_line.start = m_grid->grid[i][0].GetGlobalPosition();
-			m_line.end = m_grid->grid[i][2].GetGlobalPosition();
+			m_line = Line{ m_grid->grid[i][0].GetGlobalPosition(), m_grid->grid[i][1].GetGlobalPosition(), m_grid->grid[i][2].GetGlobalPosition() };
 			if (m_grid->grid[i][0].GetSymbol() == Symbol::x)
 			{
 				return GameState::xWon;
@@ -441,8 +463,7 @@ GameState GameManager::CheckVictory()
 			&& m_grid->grid[0][i].GetSymbol() == m_grid->grid[1][i].GetSymbol()
 			&& m_grid->grid[1][i].GetSymbol() == m_grid->grid[2][i].GetSymbol())
 		{
-			m_line.start = m_grid->grid[0][i].GetGlobalPosition();
-			m_line.end = m_grid->grid[2][i].GetGlobalPosition();
+			m_line = Line{ m_grid->grid[0][i].GetGlobalPosition(), m_grid->grid[1][i].GetGlobalPosition(), m_grid->grid[2][i].GetGlobalPosition() };
 			if (m_grid->grid[0][i].GetSymbol() == Symbol::x)
 			{
 				return GameState::xWon;
@@ -458,8 +479,7 @@ GameState GameManager::CheckVictory()
 		&& m_grid->grid[0][0].GetSymbol() == m_grid->grid[1][1].GetSymbol()
 		&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][2].GetSymbol())
 	{
-		m_line.start = m_grid->grid[0][0].GetGlobalPosition();
-		m_line.end = m_grid->grid[2][2].GetGlobalPosition();
+		m_line = Line{ m_grid->grid[0][0].GetGlobalPosition(), m_grid->grid[1][1].GetGlobalPosition(), m_grid->grid[2][2].GetGlobalPosition() };
 		if (m_grid->grid[0][0].GetSymbol() == Symbol::x)
 		{
 			return GameState::xWon;
@@ -474,8 +494,7 @@ GameState GameManager::CheckVictory()
 		&& m_grid->grid[0][2].GetSymbol() == m_grid->grid[1][1].GetSymbol()
 		&& m_grid->grid[1][1].GetSymbol() == m_grid->grid[2][0].GetSymbol())
 	{
-		m_line.start = m_grid->grid[0][2].GetGlobalPosition();
-		m_line.end = m_grid->grid[2][0].GetGlobalPosition();
+		m_line = Line{ m_grid->grid[0][2].GetGlobalPosition(), m_grid->grid[1][1].GetGlobalPosition(), m_grid->grid[2][0].GetGlobalPosition() };
 		if (m_grid->grid[0][2].GetSymbol() == Symbol::x)
 		{
 			return GameState::xWon;
