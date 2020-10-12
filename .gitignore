@@ -87,6 +87,5 @@ ipch/
 *.exe
 *.out
 *.app
-*.sln
 *.vcxproj
 *.filters
