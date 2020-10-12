@@ -6,7 +6,7 @@
 * Add AI
 * Add multiplayer mode
  
- Here are some images. Tested with color cell and with line when there is a winner.
+ Here are some images. Tested with coloring the cell and with drawing a line when there is a winner.
  
 ![](/Images/4.JPG) 
 
